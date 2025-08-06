@@ -486,6 +486,21 @@ export default function EventsClient() {
                         <span className="ml-1">{event.organizer.firstName} {event.organizer.lastName}</span>
                       </div>
                     )}
+
+                    {/* Show additional admin info */}
+                    {(user?.role === "admin" || user?.role === "sk_official") && (
+                      <div className="mt-2 pt-2 border-t border-gray-200">
+                        <div className="flex items-center justify-between text-xs text-gray-500">
+                          <span>Category: {event.category}</span>
+                          <span>Status: {event.status}</span>
+                        </div>
+                        {event.registrationDeadline && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            Registration deadline: {new Date(event.registrationDeadline).toLocaleDateString()}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                   {user?.role === "admin" || user?.role === "sk_official" ? (
                     <div className="flex gap-2 mt-4">
