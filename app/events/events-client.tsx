@@ -13,6 +13,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import { Calendar, MapPin, Users, Clock, Plus, RefreshCw, Eye, Settings } from "lucide-react"
+import EventRegistrationModal from "@/components/event-registration-modal"
+import EventCalendar from "@/components/event-calendar"
 
 interface User {
   id: string
@@ -62,12 +64,41 @@ export default function EventsClient() {
   const [submitting, setSubmitting] = useState(false)
   const [editEventOpen, setEditEventOpen] = useState(false)
   const [editingEvent, setEditingEvent] = useState<Event | null>(null)
+  const [showCalendarView, setShowCalendarView] = useState(false)
+  const [localEventsFilter, setLocalEventsFilter] = useState(false)
+  const [showRegistrationModal, setShowRegistrationModal] = useState(false)
+  const [selectedEventForRegistration, setSelectedEventForRegistration] = useState<Event | null>(null)
   const router = useRouter()
   const { toast } = useToast()
 
   const handleCreateEvent = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
+
+    // Frontend validation
+    const eventDateTime = new Date(eventForm.date + "T" + eventForm.time)
+    const now = new Date()
+
+    if (eventDateTime <= now) {
+      toast({
+        title: "Invalid Date",
+        description: "Event date and time must be in the future",
+        variant: "destructive",
+      })
+      setSubmitting(false)
+      return
+    }
+
+    const registrationDateTime = new Date(eventForm.registrationDeadline + "T" + eventForm.registrationDeadlineTime)
+    if (registrationDateTime >= eventDateTime) {
+      toast({
+        title: "Invalid Registration Deadline",
+        description: "Registration deadline must be before the event date",
+        variant: "destructive",
+      })
+      setSubmitting(false)
+      return
+    }
 
     try {
       const token = localStorage.getItem("token")
@@ -85,12 +116,13 @@ export default function EventsClient() {
         body: JSON.stringify({
           title: eventForm.title,
           description: eventForm.description,
-          date: new Date(eventForm.date + "T" + eventForm.time).toISOString(),
+          date: eventForm.date,
           time: eventForm.time,
           location: eventForm.location,
           category: eventForm.category,
           maxParticipants: parseInt(eventForm.maxParticipants) || 50,
-          registrationDeadline: new Date(eventForm.registrationDeadline + "T" + eventForm.registrationDeadlineTime).toISOString(),
+          registrationDeadline: eventForm.registrationDeadline,
+          registrationDeadlineTime: eventForm.registrationDeadlineTime,
           // Use user's location data for new events
           barangay: user?.barangay || "",
           municipality: user?.municipality || "",
@@ -120,15 +152,23 @@ export default function EventsClient() {
         // Refresh events list
         await fetchEvents()
       } else {
-        let errorMessage = "Failed to create event"
+        let errorMessage = isEditing ? "Failed to update event" : "Failed to create event"
         try {
           const error = await response.json()
-          errorMessage = error.message || errorMessage
+
+          // Handle validation errors specifically
+          if (error.errors && typeof error.errors === 'object') {
+            const validationErrors = Object.values(error.errors).map((err: any) => err.message || err).join(', ')
+            errorMessage = validationErrors
+          } else if (error.message) {
+            errorMessage = error.message
+          } else if (error.error) {
+            errorMessage = error.error
+          }
         } catch (e) {
           // Handle cases where response body cannot be parsed
           errorMessage = `HTTP ${response.status}: ${response.statusText}`
         }
-
         toast({
           title: "Error",
           description: errorMessage,
@@ -194,6 +234,39 @@ export default function EventsClient() {
     setEventForm(prev => ({ ...prev, [field]: value }))
   }
 
+  const handleEventCalendar = () => {
+    setShowCalendarView(!showCalendarView)
+    toast({
+      title: showCalendarView ? "List View" : "Calendar View",
+      description: showCalendarView ? "Switched to list view" : "Switched to calendar view",
+    })
+  }
+
+  const handleLocalEvents = () => {
+    setLocalEventsFilter(!localEventsFilter)
+
+    toast({
+      title: localEventsFilter ? "All Events" : "Local Events",
+      description: localEventsFilter
+        ? "Showing all events"
+        : `Showing events in ${user?.barangay}, ${user?.municipality}`,
+    })
+  }
+
+  const handleRegisterForEvent = (event: Event) => {
+    setSelectedEventForRegistration(event)
+    setShowRegistrationModal(true)
+  }
+
+  const handleRegistrationSuccess = () => {
+    // Refresh events to update participant count
+    fetchEvents()
+  }
+
+  const handleEventClick = (event: Event) => {
+    router.push(`/events/${event._id}`)
+  }
+
   useEffect(() => {
     // Check if user is logged in
     const token = localStorage.getItem("token")
@@ -229,6 +302,21 @@ export default function EventsClient() {
   if (!user) {
     return null // Will redirect to login
   }
+
+  // Filter events based on local events toggle
+  const filteredEvents = localEventsFilter && user
+    ? events.filter(event => {
+        // Filter events by user's location
+        const location = event.location.toLowerCase()
+        const userBarangay = user.barangay.toLowerCase()
+        const userMunicipality = user.municipality.toLowerCase()
+        const userProvince = user.province.toLowerCase()
+
+        return location.includes(userBarangay) ||
+               location.includes(userMunicipality) ||
+               location.includes(userProvince)
+      })
+    : events
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -575,19 +663,35 @@ export default function EventsClient() {
         {/* Events Section */}
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Community Events</h2>
+            <h2 className="text-2xl font-bold text-gray-900">
+              {localEventsFilter ? `Local Events - ${user?.barangay}` : "Community Events"}
+            </h2>
             <p className="text-gray-600">
               {user?.role === "admin" || user?.role === "sk_official"
                 ? "Manage and oversee community events and activities"
                 : "Discover and participate in local SK events and activities"
               }
             </p>
-            {(user?.role === "admin" || user?.role === "sk_official") && (
-              <div className="flex items-center mt-2">
-                <Settings className="h-4 w-4 mr-2 text-blue-600" />
-                <span className="text-sm text-blue-600 font-medium">Management Mode</span>
-              </div>
-            )}
+            <div className="flex items-center gap-4 mt-2">
+              {(user?.role === "admin" || user?.role === "sk_official") && (
+                <div className="flex items-center">
+                  <Settings className="h-4 w-4 mr-2 text-blue-600" />
+                  <span className="text-sm text-blue-600 font-medium">Management Mode</span>
+                </div>
+              )}
+              {localEventsFilter && (
+                <div className="flex items-center">
+                  <MapPin className="h-4 w-4 mr-2 text-green-600" />
+                  <span className="text-sm text-green-600 font-medium">Local Filter Active</span>
+                </div>
+              )}
+              {showCalendarView && (
+                <div className="flex items-center">
+                  <Calendar className="h-4 w-4 mr-2 text-purple-600" />
+                  <span className="text-sm text-purple-600 font-medium">Calendar View</span>
+                </div>
+              )}
+            </div>
           </div>
           <Button
             variant="outline"
@@ -600,29 +704,36 @@ export default function EventsClient() {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {eventsLoading ? (
-            // Loading skeleton
-            Array.from({ length: 3 }).map((_, index) => (
-              <Card key={index}>
-                <CardHeader>
-                  <div className="animate-pulse">
-                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="animate-pulse space-y-2">
-                    <div className="h-3 bg-gray-200 rounded w-full"></div>
-                    <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-                    <div className="h-8 bg-gray-200 rounded w-full mt-4"></div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          ) : events.length > 0 ? (
+        {showCalendarView ? (
+          // Calendar View
+          <EventCalendar
+            events={filteredEvents}
+            onEventClick={handleEventClick}
+          />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {eventsLoading ? (
+              // Loading skeleton
+              Array.from({ length: 3 }).map((_, index) => (
+                <Card key={index}>
+                  <CardHeader>
+                    <div className="animate-pulse">
+                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="animate-pulse space-y-2">
+                      <div className="h-3 bg-gray-200 rounded w-full"></div>
+                      <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                      <div className="h-8 bg-gray-200 rounded w-full mt-4"></div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : filteredEvents.length > 0 ? (
             // Real events
-            events.map((event) => (
+            filteredEvents.map((event) => (
               <Card key={event._id}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
@@ -726,13 +837,7 @@ export default function EventsClient() {
                   ) : (
                     <Button
                       className="w-full mt-4"
-                      onClick={() => {
-                        // TODO: Implement event registration
-                        toast({
-                          title: "Coming Soon",
-                          description: "Event registration will be available soon.",
-                        })
-                      }}
+                      onClick={() => handleRegisterForEvent(event)}
                     >
                       Register for Event
                     </Button>
@@ -740,39 +845,59 @@ export default function EventsClient() {
                 </CardContent>
               </Card>
             ))
-          ) : (
-            // No events message
-            <div className="col-span-full text-center py-12">
-              <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No Events Found</h3>
-              <p className="text-gray-600 mb-4">
-                {user?.role === "admin" || user?.role === "sk_official"
-                  ? "Create your first event to get started!"
-                  : "Check back later for new events."
-                }
-              </p>
-            </div>
-          )}
-        </div>
+            ) : (
+              // No events message
+              <div className="col-span-full text-center py-12">
+                <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  {localEventsFilter ? "No Local Events Found" : "No Events Found"}
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  {localEventsFilter
+                    ? `No events found in ${user?.barangay}, ${user?.municipality}. Try viewing all events.`
+                    : user?.role === "admin" || user?.role === "sk_official"
+                      ? "Create your first event to get started!"
+                      : "Check back later for new events."
+                  }
+                </p>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Quick Actions */}
         <div className="mt-8 bg-white rounded-lg shadow-sm p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button variant="outline" className="flex items-center justify-center h-16">
-              <Users className="h-5 w-5 mr-2" />
-              My Registrations
-            </Button>
-            <Button variant="outline" className="flex items-center justify-center h-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Button
+              variant="outline"
+              className="flex items-center justify-center h-16"
+              onClick={handleEventCalendar}
+            >
               <Calendar className="h-5 w-5 mr-2" />
               Event Calendar
             </Button>
-            <Button variant="outline" className="flex items-center justify-center h-16">
+            <Button
+              variant="outline"
+              className="flex items-center justify-center h-16"
+              onClick={handleLocalEvents}
+            >
               <MapPin className="h-5 w-5 mr-2" />
               Local Events
             </Button>
           </div>
         </div>
+
+        {/* Event Registration Modal */}
+        <EventRegistrationModal
+          isOpen={showRegistrationModal}
+          onClose={() => {
+            setShowRegistrationModal(false)
+            setSelectedEventForRegistration(null)
+          }}
+          event={selectedEventForRegistration}
+          onRegistrationSuccess={handleRegistrationSuccess}
+        />
       </div>
     </div>
   )

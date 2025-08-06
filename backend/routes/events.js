@@ -99,6 +99,16 @@ router.post("/", auth, skOfficialAuth, upload.single("eventImage"), handleMulter
       eventData.image = `/uploads/events/${req.file.filename}`
     }
 
+    // Combine date and time into a proper Date object
+    if (eventData.date && eventData.time) {
+      eventData.date = new Date(eventData.date + "T" + eventData.time)
+    }
+
+    // Handle registration deadline
+    if (eventData.registrationDeadline && eventData.registrationDeadlineTime) {
+      eventData.registrationDeadline = new Date(eventData.registrationDeadline + "T" + eventData.registrationDeadlineTime)
+    }
+
     // Parse arrays if they come as strings
     if (typeof eventData.requirements === "string") {
       eventData.requirements = JSON.parse(eventData.requirements)
@@ -118,6 +128,21 @@ router.post("/", auth, skOfficialAuth, upload.single("eventImage"), handleMulter
     })
   } catch (error) {
     console.error("Create event error:", error)
+
+    // Handle validation errors specifically
+    if (error.name === 'ValidationError') {
+      const validationErrors = {}
+      Object.keys(error.errors).forEach(key => {
+        validationErrors[key] = error.errors[key].message
+      })
+
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: validationErrors,
+        details: error.message,
+      })
+    }
+
     res.status(400).json({
       message: "Failed to create event",
       error: error.message,
@@ -145,6 +170,16 @@ router.put("/:id", auth, skOfficialAuth, upload.single("eventImage"), handleMult
     // Add image path if uploaded
     if (req.file) {
       updateData.image = `/uploads/events/${req.file.filename}`
+    }
+
+    // Combine date and time into a proper Date object
+    if (updateData.date && updateData.time) {
+      updateData.date = new Date(updateData.date + "T" + updateData.time)
+    }
+
+    // Handle registration deadline
+    if (updateData.registrationDeadline && updateData.registrationDeadlineTime) {
+      updateData.registrationDeadline = new Date(updateData.registrationDeadline + "T" + updateData.registrationDeadlineTime)
     }
 
     // Parse arrays if they come as strings

@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { useToast } from "@/hooks/use-toast"
+import ParticipantsModal from "@/components/participants-modal"
+import EventManagementModal from "@/components/event-management-modal"
 import { 
   Calendar, 
   MapPin, 
@@ -63,6 +65,8 @@ export default function EventDetailClient({ eventId }: { eventId: string }) {
   const [user, setUser] = useState<User | null>(null)
   const [event, setEvent] = useState<Event | null>(null)
   const [loading, setLoading] = useState(true)
+  const [showParticipants, setShowParticipants] = useState(false)
+  const [showManageEvent, setShowManageEvent] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
 
@@ -114,28 +118,41 @@ export default function EventDetailClient({ eventId }: { eventId: string }) {
     }
   }
 
-  const handleEditEvent = () => {
-    // TODO: Navigate to edit page or open edit modal
-    toast({
-      title: "Coming Soon",
-      description: "Event editing functionality will be available soon.",
-    })
+  const handleManageEvent = () => {
+    setShowManageEvent(true)
   }
 
-  const handleDeleteEvent = () => {
-    // TODO: Implement delete confirmation dialog
-    toast({
-      title: "Coming Soon", 
-      description: "Event deletion functionality will be available soon.",
-    })
+  const handleViewParticipants = () => {
+    setShowParticipants(true)
   }
 
-  const handleRegisterEvent = () => {
-    // TODO: Implement event registration
-    toast({
-      title: "Coming Soon",
-      description: "Event registration will be available soon.",
-    })
+  const handleRegisterEvent = async () => {
+    try {
+      const token = localStorage.getItem("token")
+
+      if (!token) {
+        toast({
+          title: "Authentication Required",
+          description: "Please log in to register for events.",
+          variant: "destructive",
+        })
+        return
+      }
+
+      // TODO: Create proper registration form with emergency contact info
+      // For now, just show a coming soon message
+      toast({
+        title: "Coming Soon",
+        description: "Event registration form will be available soon.",
+      })
+    } catch (error) {
+      console.error("Registration error:", error)
+      toast({
+        title: "Error",
+        description: "Failed to register for event. Please try again.",
+        variant: "destructive",
+      })
+    }
   }
 
   if (loading) {
@@ -183,13 +200,9 @@ export default function EventDetailClient({ eventId }: { eventId: string }) {
           
           {canEdit && (
             <div className="flex gap-2">
-              <Button variant="outline" onClick={handleEditEvent}>
-                <Edit className="h-4 w-4 mr-2" />
-                Edit Event
-              </Button>
-              <Button variant="destructive" onClick={handleDeleteEvent}>
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete Event
+              <Button variant="outline" onClick={handleViewParticipants}>
+                <Users className="h-4 w-4 mr-2" />
+                View Participants
               </Button>
             </div>
           )}
@@ -329,11 +342,11 @@ export default function EventDetailClient({ eventId }: { eventId: string }) {
             <div className="mt-8 pt-6 border-t">
               {isAdmin ? (
                 <div className="flex gap-4">
-                  <Button onClick={handleEditEvent} className="flex-1">
+                  <Button onClick={handleManageEvent} className="flex-1">
                     <Settings className="h-4 w-4 mr-2" />
                     Manage Event
                   </Button>
-                  <Button variant="outline" className="flex-1">
+                  <Button variant="outline" onClick={handleViewParticipants} className="flex-1">
                     <Users className="h-4 w-4 mr-2" />
                     View Participants
                   </Button>
@@ -372,6 +385,22 @@ export default function EventDetailClient({ eventId }: { eventId: string }) {
             </CardContent>
           </Card>
         )}
+
+        {/* Participants Modal */}
+        <ParticipantsModal
+          isOpen={showParticipants}
+          onClose={() => setShowParticipants(false)}
+          eventId={eventId}
+          eventTitle={event?.title || "Event"}
+        />
+
+        {/* Event Management Modal */}
+        <EventManagementModal
+          isOpen={showManageEvent}
+          onClose={() => setShowManageEvent(false)}
+          event={event}
+          onEventUpdated={fetchEventDetails}
+        />
       </div>
     </div>
   )

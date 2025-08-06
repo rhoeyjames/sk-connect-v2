@@ -35,20 +35,55 @@ export default function Navbar() {
   const router = useRouter()
 
   useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem("token")
-    const userData = localStorage.getItem("user")
+    // Function to check authentication state
+    const checkAuthState = () => {
+      const token = localStorage.getItem("token")
+      const userData = localStorage.getItem("user")
 
-    if (token && userData) {
-      try {
-        setUser(JSON.parse(userData))
-      } catch (error) {
-        console.error("Error parsing user data:", error)
-        localStorage.removeItem("token")
-        localStorage.removeItem("user")
+      if (token && userData) {
+        try {
+          setUser(JSON.parse(userData))
+        } catch (error) {
+          console.error("Error parsing user data:", error)
+          localStorage.removeItem("token")
+          localStorage.removeItem("user")
+          setUser(null)
+        }
+      } else {
+        setUser(null)
+      }
+      setLoading(false)
+    }
+
+    // Check on initial load
+    checkAuthState()
+
+    // Listen for storage changes (when user logs in/out in another tab)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "token" || e.key === "user") {
+        checkAuthState()
       }
     }
-    setLoading(false)
+
+    // Listen for focus events (when user returns to tab after login)
+    const handleFocus = () => {
+      checkAuthState()
+    }
+
+    // Custom event for when auth state changes in same tab
+    const handleAuthChange = () => {
+      checkAuthState()
+    }
+
+    window.addEventListener("storage", handleStorageChange)
+    window.addEventListener("focus", handleFocus)
+    window.addEventListener("authStateChange", handleAuthChange)
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange)
+      window.removeEventListener("focus", handleFocus)
+      window.removeEventListener("authStateChange", handleAuthChange)
+    }
   }, [])
 
   const handleLogout = () => {
@@ -80,9 +115,11 @@ export default function Navbar() {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <Link href="/" className="flex-shrink-0 flex items-center">
-                <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">SK</span>
-                </div>
+                <img
+                  src="https://cdn.builder.io/api/v1/image/assets%2Ffabc43030bfc4ff6a60efabdca8137fc%2Fd9f1846c5b2646e5a193351263ff9dd2?format=webp&width=800"
+                  alt="SKConnect Logo"
+                  className="h-10 w-10 rounded-lg"
+                />
                 <span className="ml-2 text-xl font-bold text-gray-900">SKConnect</span>
               </Link>
             </div>
@@ -102,9 +139,11 @@ export default function Navbar() {
           {/* Logo and brand */}
           <div className="flex items-center">
             <Link href="/" className="flex-shrink-0 flex items-center">
-              <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">SK</span>
-              </div>
+              <img
+                src="https://cdn.builder.io/api/v1/image/assets%2Ffabc43030bfc4ff6a60efabdca8137fc%2Fd9f1846c5b2646e5a193351263ff9dd2?format=webp&width=800"
+                alt="SKConnect Logo"
+                className="h-10 w-10 rounded-lg"
+              />
               <span className="ml-2 text-xl font-bold text-gray-900">SKConnect</span>
             </Link>
           </div>
@@ -177,13 +216,17 @@ export default function Navbar() {
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <Users className="mr-2 h-4 w-4" />
-                      <span>Profile</span>
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile">
+                        <Users className="mr-2 h-4 w-4" />
+                        <span>Profile</span>
+                      </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Settings className="mr-2 h-4 w-4" />
-                      <span>Settings</span>
+                    <DropdownMenuItem asChild>
+                      <Link href="/settings">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Settings</span>
+                      </Link>
                     </DropdownMenuItem>
                     {user.role === "admin" && (
                       <>
