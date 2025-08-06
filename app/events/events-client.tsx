@@ -28,7 +28,19 @@ interface User {
 export default function EventsClient() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [createEventOpen, setCreateEventOpen] = useState(false)
+  const [eventForm, setEventForm] = useState({
+    title: "",
+    description: "",
+    date: "",
+    time: "",
+    location: "",
+    category: "",
+    maxParticipants: ""
+  })
+  const [submitting, setSubmitting] = useState(false)
   const router = useRouter()
+  const { toast } = useToast()
 
   useEffect(() => {
     // Check if user is logged in
