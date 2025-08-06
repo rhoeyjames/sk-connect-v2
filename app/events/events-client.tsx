@@ -71,8 +71,12 @@ export default function EventsClient() {
 
     try {
       const token = localStorage.getItem("token")
-      const response = await fetch("/api/events", {
-        method: "POST",
+      const isEditing = !!editingEvent
+      const url = isEditing ? `/api/events/${editingEvent._id}` : "/api/events"
+      const method = isEditing ? "PUT" : "POST"
+
+      const response = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
@@ -85,9 +89,9 @@ export default function EventsClient() {
           time: eventForm.time,
           location: eventForm.location,
           category: eventForm.category,
-          maxParticipants: parseInt(eventForm.maxParticipants) || 50, // Default to 50 if not specified
+          maxParticipants: parseInt(eventForm.maxParticipants) || 50,
           registrationDeadline: new Date(eventForm.registrationDeadline + "T" + eventForm.registrationDeadlineTime).toISOString(),
-          // Use user's location data
+          // Use user's location data for new events
           barangay: user?.barangay || "",
           municipality: user?.municipality || "",
           province: user?.province || "",
