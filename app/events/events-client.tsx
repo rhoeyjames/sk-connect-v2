@@ -71,6 +71,31 @@ export default function EventsClient() {
     e.preventDefault()
     setSubmitting(true)
 
+    // Frontend validation
+    const eventDateTime = new Date(eventForm.date + "T" + eventForm.time)
+    const now = new Date()
+
+    if (eventDateTime <= now) {
+      toast({
+        title: "Invalid Date",
+        description: "Event date and time must be in the future",
+        variant: "destructive",
+      })
+      setSubmitting(false)
+      return
+    }
+
+    const registrationDateTime = new Date(eventForm.registrationDeadline + "T" + eventForm.registrationDeadlineTime)
+    if (registrationDateTime >= eventDateTime) {
+      toast({
+        title: "Invalid Registration Deadline",
+        description: "Registration deadline must be before the event date",
+        variant: "destructive",
+      })
+      setSubmitting(false)
+      return
+    }
+
     try {
       const token = localStorage.getItem("token")
       const isEditing = !!editingEvent
