@@ -42,6 +42,65 @@ export default function EventsClient() {
   const router = useRouter()
   const { toast } = useToast()
 
+  const handleCreateEvent = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSubmitting(true)
+
+    try {
+      const token = localStorage.getItem("token")
+      const response = await fetch("/api/events", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          ...eventForm,
+          maxParticipants: parseInt(eventForm.maxParticipants) || null,
+          date: new Date(eventForm.date + "T" + eventForm.time).toISOString(),
+        }),
+      })
+
+      if (response.ok) {
+        toast({
+          title: "Event Created!",
+          description: "Your event has been created successfully.",
+        })
+        setCreateEventOpen(false)
+        setEventForm({
+          title: "",
+          description: "",
+          date: "",
+          time: "",
+          location: "",
+          category: "",
+          maxParticipants: ""
+        })
+        // Refresh events list here if you have one
+      } else {
+        const error = await response.json()
+        toast({
+          title: "Error",
+          description: error.message || "Failed to create event",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error("Error creating event:", error)
+      toast({
+        title: "Error",
+        description: "Failed to create event. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleInputChange = (field: string, value: string) => {
+    setEventForm(prev => ({ ...prev, [field]: value }))
+  }
+
   useEffect(() => {
     // Check if user is logged in
     const token = localStorage.getItem("token")
