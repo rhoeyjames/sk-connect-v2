@@ -66,6 +66,7 @@ export default function EventDetailClient({ eventId }: { eventId: string }) {
   const [event, setEvent] = useState<Event | null>(null)
   const [loading, setLoading] = useState(true)
   const [showParticipants, setShowParticipants] = useState(false)
+  const [showManageEvent, setShowManageEvent] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
 
