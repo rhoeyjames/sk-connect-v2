@@ -261,6 +261,21 @@ export default function EventsClient() {
     return null // Will redirect to login
   }
 
+  // Filter events based on local events toggle
+  const filteredEvents = localEventsFilter && user
+    ? events.filter(event => {
+        // Filter events by user's location
+        const location = event.location.toLowerCase()
+        const userBarangay = user.barangay.toLowerCase()
+        const userMunicipality = user.municipality.toLowerCase()
+        const userProvince = user.province.toLowerCase()
+
+        return location.includes(userBarangay) ||
+               location.includes(userMunicipality) ||
+               location.includes(userProvince)
+      })
+    : events
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
