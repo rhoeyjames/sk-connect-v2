@@ -78,10 +78,18 @@ export default function EventsClient() {
         })
         // Refresh events list here if you have one
       } else {
-        const error = await response.json()
+        let errorMessage = "Failed to create event"
+        try {
+          const error = await response.json()
+          errorMessage = error.message || errorMessage
+        } catch (e) {
+          // Handle cases where response body cannot be parsed
+          errorMessage = `HTTP ${response.status}: ${response.statusText}`
+        }
+
         toast({
           title: "Error",
-          description: error.message || "Failed to create event",
+          description: errorMessage,
           variant: "destructive",
         })
       }
