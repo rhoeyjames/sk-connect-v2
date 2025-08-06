@@ -156,14 +156,14 @@ export default function EventManagementModal({
         updateData.append("registrationDeadline", formData.registrationDeadline)
       }
       if (formData.requirements) {
-        // Split requirements by comma and append each one
+        // Split requirements by comma and send as JSON string
         const reqArray = formData.requirements.split(",").map(r => r.trim()).filter(r => r)
-        reqArray.forEach(req => updateData.append("requirements", req))
+        updateData.append("requirements", JSON.stringify(reqArray))
       }
       if (formData.tags) {
-        // Split tags by comma and append each one
+        // Split tags by comma and send as JSON string
         const tagArray = formData.tags.split(",").map(t => t.trim()).filter(t => t)
-        tagArray.forEach(tag => updateData.append("tags", tag))
+        updateData.append("tags", JSON.stringify(tagArray))
       }
 
       const response = await fetch(`/api/events/${event._id}`, {
