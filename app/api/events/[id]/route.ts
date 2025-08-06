@@ -31,17 +31,17 @@ export async function PUT(
 ) {
   try {
     const authorization = request.headers.get('authorization')
-    const body = await request.json()
-    
+    const formData = await request.formData()
+
     const response = await fetch(`${BACKEND_URL}/api/events/${params.id}`, {
       method: 'PUT',
       headers: {
-        'Content-Type': 'application/json',
         ...(authorization && { 'Authorization': authorization }),
+        // Don't set Content-Type for FormData, let the browser set it with boundary
       },
-      body: JSON.stringify(body),
+      body: formData,
     })
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
       return NextResponse.json(errorData, { status: response.status })
