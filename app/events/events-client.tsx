@@ -100,10 +100,12 @@ export default function EventsClient() {
 
       if (response.ok) {
         toast({
-          title: "Event Created!",
-          description: "Your event has been created successfully.",
+          title: isEditing ? "Event Updated!" : "Event Created!",
+          description: isEditing ? "Your event has been updated successfully." : "Your event has been created successfully.",
         })
         setCreateEventOpen(false)
+        setEditEventOpen(false)
+        setEditingEvent(null)
         setEventForm({
           title: "",
           description: "",
