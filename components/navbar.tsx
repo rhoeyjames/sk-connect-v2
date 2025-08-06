@@ -58,20 +58,18 @@ export default function Navbar() {
     router.push("/")
   }
 
-  const navigation = [
-    {
-      name: "Home",
-      href: user?.role === "admin" ? "/admin" : "/",
-      icon: user?.role === "admin" ? Shield : Home
-    },
-    { name: "Events", href: "/events", icon: Calendar },
-    { name: "About", href: "/about", icon: Info },
-  ]
-
-  // Add admin dashboard as separate item for admin users
-  if (user?.role === "admin") {
-    navigation.push({ name: "Admin Dashboard", href: "/admin", icon: Shield })
-  }
+  // Create role-based navigation
+  const navigation = user?.role === "admin"
+    ? [
+        { name: "Dashboard", href: "/admin", icon: Shield },
+        { name: "Events", href: "/events", icon: Calendar },
+        { name: "About", href: "/about", icon: Info },
+      ]
+    : [
+        { name: "Home", href: "/", icon: Home },
+        { name: "Events", href: "/events", icon: Calendar },
+        { name: "About", href: "/about", icon: Info },
+      ]
 
   const isActive = (href: string) => pathname === href
 
