@@ -88,7 +88,6 @@ export default function RegisterForm() {
     }
 
     try {
-      const { default: apiClient } = await import("@/lib/api")
 
       const registrationData = {
         firstName: formData.firstName,
