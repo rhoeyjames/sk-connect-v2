@@ -128,6 +128,21 @@ router.post("/", auth, skOfficialAuth, upload.single("eventImage"), handleMulter
     })
   } catch (error) {
     console.error("Create event error:", error)
+
+    // Handle validation errors specifically
+    if (error.name === 'ValidationError') {
+      const validationErrors = {}
+      Object.keys(error.errors).forEach(key => {
+        validationErrors[key] = error.errors[key].message
+      })
+
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: validationErrors,
+        details: error.message,
+      })
+    }
+
     res.status(400).json({
       message: "Failed to create event",
       error: error.message,
