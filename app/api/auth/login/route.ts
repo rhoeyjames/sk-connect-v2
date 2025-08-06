@@ -1,44 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
+import connectDB from '@/lib/mongodb'
+import mongoose from 'mongoose'
 
-// Mock user data for development - replace with real database in production
-const MOCK_USERS = [
-  {
-    id: '1',
-    email: 'admin@skconnect.com',
-    password: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-    firstName: 'Admin',
-    lastName: 'User',
-    role: 'admin',
-    barangay: 'Sample Barangay',
-    municipality: 'Sample Municipality',
-    province: 'Sample Province'
-  },
-  {
-    id: '2',
-    email: 'sk@skconnect.com',
-    password: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-    firstName: 'SK',
-    lastName: 'Official',
-    role: 'sk_official',
-    barangay: 'Sample Barangay',
-    municipality: 'Sample Municipality',
-    province: 'Sample Province'
-  },
-  {
-    id: '3',
-    email: 'youth@skconnect.com',
-    password: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-    firstName: 'Youth',
-    lastName: 'Member',
-    role: 'youth',
-    age: 18,
-    barangay: 'Sample Barangay',
-    municipality: 'Sample Municipality',
-    province: 'Sample Province'
-  }
-]
+// User Schema
+const userSchema = new mongoose.Schema({
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  role: { type: String, enum: ['admin', 'sk_official', 'youth'], default: 'youth' },
+  age: { type: Number },
+  barangay: { type: String, required: true },
+  municipality: { type: String, required: true },
+  province: { type: String, required: true },
+  phoneNumber: { type: String },
+  dateOfBirth: { type: Date },
+  interests: [{ type: String }],
+  isActive: { type: Boolean, default: true },
+}, { timestamps: true })
+
+const User = mongoose.models.User || mongoose.model('User', userSchema)
 
 export async function POST(request: NextRequest) {
   try {
