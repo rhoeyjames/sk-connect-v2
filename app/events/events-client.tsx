@@ -39,6 +39,7 @@ interface Event {
   maxParticipants?: number
   currentParticipants: number
   status: string
+  registrationDeadline?: string
 }
 
 export default function EventsClient() {
