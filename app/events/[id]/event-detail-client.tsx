@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { useToast } from "@/hooks/use-toast"
 import ParticipantsModal from "@/components/participants-modal"
+import EventManagementModal from "@/components/event-management-modal"
 import { 
   Calendar, 
   MapPin, 
