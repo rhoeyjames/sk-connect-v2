@@ -407,6 +407,21 @@ export default function EventsClient() {
         </div>
 
         {/* Events Section */}
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Community Events</h2>
+            <p className="text-gray-600">Discover and participate in local SK events and activities</p>
+          </div>
+          <Button
+            variant="outline"
+            onClick={() => fetchEvents()}
+            disabled={eventsLoading}
+            className="flex items-center"
+          >
+            {eventsLoading ? "Loading..." : "Refresh Events"}
+          </Button>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {eventsLoading ? (
             // Loading skeleton
