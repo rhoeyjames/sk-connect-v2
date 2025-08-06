@@ -66,6 +66,8 @@ export default function EventsClient() {
   const [editingEvent, setEditingEvent] = useState<Event | null>(null)
   const [showCalendarView, setShowCalendarView] = useState(false)
   const [localEventsFilter, setLocalEventsFilter] = useState(false)
+  const [showRegistrationModal, setShowRegistrationModal] = useState(false)
+  const [selectedEventForRegistration, setSelectedEventForRegistration] = useState<Event | null>(null)
   const router = useRouter()
   const { toast } = useToast()
 
