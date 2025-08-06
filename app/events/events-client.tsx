@@ -75,22 +75,10 @@ export default function EventsClient() {
     const eventDateTime = new Date(eventForm.date + "T" + eventForm.time)
     const now = new Date()
 
-    console.log("=== Event Creation Validation ===")
-    console.log("Form Data:", {
-      date: eventForm.date,
-      time: eventForm.time,
-      registrationDeadline: eventForm.registrationDeadline,
-      registrationDeadlineTime: eventForm.registrationDeadlineTime
-    })
-    console.log("Event DateTime:", eventDateTime)
-    console.log("Current Time:", now)
-    console.log("Is Event in Future:", eventDateTime > now)
-    console.log("Time Difference (hours):", (eventDateTime - now) / (1000 * 60 * 60))
-
     if (eventDateTime <= now) {
       toast({
         title: "Invalid Date",
-        description: `Event date and time must be in the future. Current time: ${now.toLocaleString()}, Event time: ${eventDateTime.toLocaleString()}`,
+        description: "Event date and time must be in the future",
         variant: "destructive",
       })
       setSubmitting(false)
@@ -98,13 +86,10 @@ export default function EventsClient() {
     }
 
     const registrationDateTime = new Date(eventForm.registrationDeadline + "T" + eventForm.registrationDeadlineTime)
-    console.log("Registration DateTime:", registrationDateTime)
-    console.log("Registration before Event:", registrationDateTime < eventDateTime)
-
     if (registrationDateTime >= eventDateTime) {
       toast({
         title: "Invalid Registration Deadline",
-        description: `Registration deadline (${registrationDateTime.toLocaleString()}) must be before the event date (${eventDateTime.toLocaleString()})`,
+        description: "Registration deadline must be before the event date",
         variant: "destructive",
       })
       setSubmitting(false)
