@@ -393,6 +393,14 @@ export default function EventDetailClient({ eventId }: { eventId: string }) {
           eventId={eventId}
           eventTitle={event?.title || "Event"}
         />
+
+        {/* Event Management Modal */}
+        <EventManagementModal
+          isOpen={showManageEvent}
+          onClose={() => setShowManageEvent(false)}
+          event={event}
+          onEventUpdated={fetchEventDetails}
+        />
       </div>
     </div>
   )
