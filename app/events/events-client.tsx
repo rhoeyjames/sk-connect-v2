@@ -345,7 +345,88 @@ export default function EventsClient() {
 
         {/* Events Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Sample Event Cards */}
+          {eventsLoading ? (
+            // Loading skeleton
+            Array.from({ length: 3 }).map((_, index) => (
+              <Card key={index}>
+                <CardHeader>
+                  <div className="animate-pulse">
+                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="animate-pulse space-y-2">
+                    <div className="h-3 bg-gray-200 rounded w-full"></div>
+                    <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                    <div className="h-8 bg-gray-200 rounded w-full mt-4"></div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          ) : events.length > 0 ? (
+            // Real events
+            events.map((event) => (
+              <Card key={event._id}>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">{event.title}</CardTitle>
+                    <Badge className={`${
+                      event.status === 'upcoming' ? 'bg-blue-100 text-blue-800' :
+                      event.status === 'active' ? 'bg-green-100 text-green-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+                    </Badge>
+                  </div>
+                  <CardDescription>
+                    {event.description}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm text-gray-600">
+                    <div className="flex items-center">
+                      <Calendar className="h-4 w-4 mr-2" />
+                      {new Date(event.date).toLocaleDateString()}
+                    </div>
+                    <div className="flex items-center">
+                      <Clock className="h-4 w-4 mr-2" />
+                      {new Date(event.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                    <div className="flex items-center">
+                      <MapPin className="h-4 w-4 mr-2" />
+                      {event.location}
+                    </div>
+                    <div className="flex items-center">
+                      <Users className="h-4 w-4 mr-2" />
+                      {event.currentParticipants} {event.maxParticipants ? `/ ${event.maxParticipants}` : ''} registered
+                    </div>
+                    {event.organizer && (
+                      <div className="flex items-center text-xs">
+                        <span className="font-medium">Organizer:</span>
+                        <span className="ml-1">{event.organizer.firstName} {event.organizer.lastName}</span>
+                      </div>
+                    )}
+                  </div>
+                  <Button className="w-full mt-4">Register for Event</Button>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            // No events message
+            <div className="col-span-full text-center py-12">
+              <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No Events Found</h3>
+              <p className="text-gray-600 mb-4">
+                {user?.role === "admin" || user?.role === "sk_official"
+                  ? "Create your first event to get started!"
+                  : "Check back later for new events."
+                }
+              </p>
+            </div>
+          )}
+
+          {/* Keep one sample card for demo purposes if no real events */}
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
