@@ -418,7 +418,8 @@ export default function EventsClient() {
             disabled={eventsLoading}
             className="flex items-center"
           >
-            {eventsLoading ? "Loading..." : "Refresh Events"}
+            <RefreshCw className={`h-4 w-4 mr-2 ${eventsLoading ? 'animate-spin' : ''}`} />
+            {eventsLoading ? "Loading..." : "Refresh"}
           </Button>
         </div>
 
