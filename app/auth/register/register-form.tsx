@@ -13,6 +13,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useToast } from "@/hooks/use-toast"
 import { Mail, MapPin, User, Loader2, AlertCircle, CheckCircle } from "lucide-react"
+import apiClient from "@/lib/api"
 
 export default function RegisterForm() {
   const [formData, setFormData] = useState({
