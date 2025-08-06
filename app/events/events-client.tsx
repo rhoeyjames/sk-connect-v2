@@ -426,7 +426,6 @@ export default function EventsClient() {
             </div>
           )}
 
-          {/* Keep one sample card for demo purposes if no real events */}
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
