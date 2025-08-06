@@ -328,8 +328,10 @@ export default function EventsClient() {
                             type="number"
                             value={eventForm.maxParticipants}
                             onChange={(e) => handleInputChange("maxParticipants", e.target.value)}
-                            placeholder="Optional"
+                            placeholder="e.g. 50"
                             min="1"
+                            max="1000"
+                            required
                           />
                         </div>
                       </div>
