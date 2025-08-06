@@ -487,7 +487,18 @@ export default function EventsClient() {
                       </div>
                     )}
                   </div>
-                  <Button className="w-full mt-4">Register for Event</Button>
+                  {user?.role === "admin" || user?.role === "sk_official" ? (
+                    <div className="flex gap-2 mt-4">
+                      <Button variant="outline" className="flex-1">
+                        View Details
+                      </Button>
+                      <Button className="flex-1">
+                        Manage Event
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button className="w-full mt-4">Register for Event</Button>
+                  )}
                 </CardContent>
               </Card>
             ))
