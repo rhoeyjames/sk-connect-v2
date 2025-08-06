@@ -55,8 +55,6 @@ export default function LoginForm() {
 
     try {
       // Use real backend API
-      const { default: apiClient } = await import("@/lib/api")
-
       const data = await apiClient.login(formData.email, formData.password) as any
 
       // Validate that the user's actual role matches the selected role
