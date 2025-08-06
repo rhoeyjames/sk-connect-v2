@@ -606,19 +606,35 @@ export default function EventsClient() {
         {/* Events Section */}
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Community Events</h2>
+            <h2 className="text-2xl font-bold text-gray-900">
+              {localEventsFilter ? `Local Events - ${user?.barangay}` : "Community Events"}
+            </h2>
             <p className="text-gray-600">
               {user?.role === "admin" || user?.role === "sk_official"
                 ? "Manage and oversee community events and activities"
                 : "Discover and participate in local SK events and activities"
               }
             </p>
-            {(user?.role === "admin" || user?.role === "sk_official") && (
-              <div className="flex items-center mt-2">
-                <Settings className="h-4 w-4 mr-2 text-blue-600" />
-                <span className="text-sm text-blue-600 font-medium">Management Mode</span>
-              </div>
-            )}
+            <div className="flex items-center gap-4 mt-2">
+              {(user?.role === "admin" || user?.role === "sk_official") && (
+                <div className="flex items-center">
+                  <Settings className="h-4 w-4 mr-2 text-blue-600" />
+                  <span className="text-sm text-blue-600 font-medium">Management Mode</span>
+                </div>
+              )}
+              {localEventsFilter && (
+                <div className="flex items-center">
+                  <MapPin className="h-4 w-4 mr-2 text-green-600" />
+                  <span className="text-sm text-green-600 font-medium">Local Filter Active</span>
+                </div>
+              )}
+              {showCalendarView && (
+                <div className="flex items-center">
+                  <Calendar className="h-4 w-4 mr-2 text-purple-600" />
+                  <span className="text-sm text-purple-600 font-medium">Calendar View</span>
+                </div>
+              )}
+            </div>
           </div>
           <Button
             variant="outline"
