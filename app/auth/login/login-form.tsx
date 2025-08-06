@@ -56,18 +56,20 @@ export default function LoginForm() {
       // Use real backend API
       const { default: apiClient } = await import("@/lib/api")
 
-      const data = await apiClient.login(formData.email, formData.password)
+      const data = await apiClient.login(formData.email, formData.password) as any
 
       // Validate that the user's actual role matches the selected role
-      if (data.user.role !== formData.role) {
-        setError(`This account is registered as ${data.user.role === 'admin' ? 'Administrator' : data.user.role === 'sk_official' ? 'SK Official' : 'Youth Member'}. Please select the correct role.`)
+      if (data?.user?.role !== formData.role) {
+        setError(`This account is registered as ${data?.user?.role === 'admin' ? 'Administrator' : data?.user?.role === 'sk_official' ? 'SK Official' : 'Youth Member'}. Please select the correct role.`)
         setIsLoading(false)
         return
       }
 
       // Store auth data
-      localStorage.setItem("token", data.token)
-      localStorage.setItem("user", JSON.stringify(data.user))
+      if (data?.token && data?.user) {
+        localStorage.setItem("token", data.token)
+        localStorage.setItem("user", JSON.stringify(data.user))
+      }
 
       // Dispatch custom event to notify navbar of auth state change
       window.dispatchEvent(new Event("authStateChange"))
