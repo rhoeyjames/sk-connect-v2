@@ -25,9 +25,27 @@ interface User {
   province: string
 }
 
+interface Event {
+  _id: string
+  title: string
+  description: string
+  date: string
+  location: string
+  category: string
+  organizer: {
+    firstName: string
+    lastName: string
+  }
+  maxParticipants?: number
+  currentParticipants: number
+  status: string
+}
+
 export default function EventsClient() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [events, setEvents] = useState<Event[]>([])
+  const [eventsLoading, setEventsLoading] = useState(true)
   const [createEventOpen, setCreateEventOpen] = useState(false)
   const [eventForm, setEventForm] = useState({
     title: "",
