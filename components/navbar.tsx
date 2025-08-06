@@ -35,20 +35,55 @@ export default function Navbar() {
   const router = useRouter()
 
   useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem("token")
-    const userData = localStorage.getItem("user")
+    // Function to check authentication state
+    const checkAuthState = () => {
+      const token = localStorage.getItem("token")
+      const userData = localStorage.getItem("user")
 
-    if (token && userData) {
-      try {
-        setUser(JSON.parse(userData))
-      } catch (error) {
-        console.error("Error parsing user data:", error)
-        localStorage.removeItem("token")
-        localStorage.removeItem("user")
+      if (token && userData) {
+        try {
+          setUser(JSON.parse(userData))
+        } catch (error) {
+          console.error("Error parsing user data:", error)
+          localStorage.removeItem("token")
+          localStorage.removeItem("user")
+          setUser(null)
+        }
+      } else {
+        setUser(null)
+      }
+      setLoading(false)
+    }
+
+    // Check on initial load
+    checkAuthState()
+
+    // Listen for storage changes (when user logs in/out in another tab)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "token" || e.key === "user") {
+        checkAuthState()
       }
     }
-    setLoading(false)
+
+    // Listen for focus events (when user returns to tab after login)
+    const handleFocus = () => {
+      checkAuthState()
+    }
+
+    // Custom event for when auth state changes in same tab
+    const handleAuthChange = () => {
+      checkAuthState()
+    }
+
+    window.addEventListener("storage", handleStorageChange)
+    window.addEventListener("focus", handleFocus)
+    window.addEventListener("authStateChange", handleAuthChange)
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange)
+      window.removeEventListener("focus", handleFocus)
+      window.removeEventListener("authStateChange", handleAuthChange)
+    }
   }, [])
 
   const handleLogout = () => {
