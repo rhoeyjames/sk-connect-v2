@@ -75,9 +75,18 @@ export default function EventsClient() {
           "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify({
-          ...eventForm,
-          maxParticipants: parseInt(eventForm.maxParticipants) || null,
+          title: eventForm.title,
+          description: eventForm.description,
           date: new Date(eventForm.date + "T" + eventForm.time).toISOString(),
+          time: eventForm.time,
+          location: eventForm.location,
+          category: eventForm.category,
+          maxParticipants: parseInt(eventForm.maxParticipants) || 50, // Default to 50 if not specified
+          registrationDeadline: new Date(eventForm.registrationDeadline + "T" + eventForm.registrationDeadlineTime).toISOString(),
+          // Use user's location data
+          barangay: user?.barangay || "",
+          municipality: user?.municipality || "",
+          province: user?.province || "",
         }),
       })
 
