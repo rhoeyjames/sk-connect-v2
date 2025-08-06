@@ -103,7 +103,9 @@ export default function EventsClient() {
           time: "",
           location: "",
           category: "",
-          maxParticipants: ""
+          maxParticipants: "",
+          registrationDeadline: "",
+          registrationDeadlineTime: ""
         })
         // Refresh events list
         await fetchEvents()
