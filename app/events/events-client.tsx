@@ -532,11 +532,28 @@ export default function EventsClient() {
                       <Button
                         className="flex-1"
                         onClick={() => {
-                          // TODO: Open edit event dialog
-                          toast({
-                            title: "Coming Soon",
-                            description: "Event editing functionality will be available soon.",
+                          setEditingEvent(event)
+                          // Pre-fill form with existing event data
+                          const eventDate = new Date(event.date)
+                          const date = eventDate.toISOString().split('T')[0]
+                          const time = event.time || eventDate.toTimeString().slice(0, 5)
+
+                          setEventForm({
+                            title: event.title,
+                            description: event.description,
+                            date: date,
+                            time: time,
+                            location: event.location,
+                            category: event.category,
+                            maxParticipants: event.maxParticipants?.toString() || "50",
+                            registrationDeadline: event.registrationDeadline
+                              ? new Date(event.registrationDeadline).toISOString().split('T')[0]
+                              : "",
+                            registrationDeadlineTime: event.registrationDeadline
+                              ? new Date(event.registrationDeadline).toTimeString().slice(0, 5)
+                              : ""
                           })
+                          setEditEventOpen(true)
                         }}
                       >
                         <Settings className="h-4 w-4 mr-2" />
