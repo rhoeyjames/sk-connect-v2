@@ -43,7 +43,12 @@ export default function AdminDashboard() {
 
         if (response.ok) {
           const data = await response.json()
-          setUsers(data.users || [])
+          // Map _id to id for compatibility
+          const mappedUsers = (data.users || []).map((user: any) => ({
+            ...user,
+            id: user._id || user.id,
+          }))
+          setUsers(mappedUsers)
         } else {
           console.error("Failed to fetch users:", response.statusText)
           toast({
