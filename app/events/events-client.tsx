@@ -60,6 +60,8 @@ export default function EventsClient() {
     registrationDeadlineTime: ""
   })
   const [submitting, setSubmitting] = useState(false)
+  const [editEventOpen, setEditEventOpen] = useState(false)
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null)
   const router = useRouter()
   const { toast } = useToast()
 
