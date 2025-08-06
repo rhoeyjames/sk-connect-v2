@@ -62,6 +62,8 @@ export default function EventsClient() {
   const [submitting, setSubmitting] = useState(false)
   const [editEventOpen, setEditEventOpen] = useState(false)
   const [editingEvent, setEditingEvent] = useState<Event | null>(null)
+  const [showCalendarView, setShowCalendarView] = useState(false)
+  const [localEventsFilter, setLocalEventsFilter] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
 
@@ -192,6 +194,35 @@ export default function EventsClient() {
 
   const handleInputChange = (field: string, value: string) => {
     setEventForm(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleEventCalendar = () => {
+    setShowCalendarView(!showCalendarView)
+    toast({
+      title: showCalendarView ? "List View" : "Calendar View",
+      description: showCalendarView ? "Switched to list view" : "Switched to calendar view",
+    })
+  }
+
+  const handleLocalEvents = () => {
+    setLocalEventsFilter(!localEventsFilter)
+    const filteredEvents = localEventsFilter
+      ? events // Show all events
+      : events.filter(event => {
+          // Filter events by user's location
+          return user && (
+            event.location.toLowerCase().includes(user.barangay.toLowerCase()) ||
+            event.location.toLowerCase().includes(user.municipality.toLowerCase()) ||
+            event.location.toLowerCase().includes(user.province.toLowerCase())
+          )
+        })
+
+    toast({
+      title: localEventsFilter ? "All Events" : "Local Events",
+      description: localEventsFilter
+        ? "Showing all events"
+        : `Showing events in ${user?.barangay}, ${user?.municipality}`,
+    })
   }
 
   useEffect(() => {
