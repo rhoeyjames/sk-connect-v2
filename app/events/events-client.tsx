@@ -647,29 +647,71 @@ export default function EventsClient() {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {eventsLoading ? (
-            // Loading skeleton
-            Array.from({ length: 3 }).map((_, index) => (
-              <Card key={index}>
-                <CardHeader>
-                  <div className="animate-pulse">
-                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+        {showCalendarView ? (
+          // Calendar View
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Event Calendar</h3>
+            <div className="grid grid-cols-7 gap-2 mb-4">
+              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                <div key={day} className="text-center text-sm font-medium text-gray-500 py-2">
+                  {day}
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-7 gap-2">
+              {/* Simple calendar representation */}
+              {Array.from({ length: 35 }).map((_, index) => {
+                const dayNumber = index - 5 + 1 // Assuming month starts on a Wednesday
+                const hasEvent = filteredEvents.some(event => {
+                  const eventDate = new Date(event.date)
+                  return eventDate.getDate() === dayNumber && dayNumber > 0 && dayNumber <= 31
+                })
+
+                return (
+                  <div
+                    key={index}
+                    className={`h-10 flex items-center justify-center text-sm rounded ${
+                      dayNumber > 0 && dayNumber <= 31
+                        ? hasEvent
+                          ? 'bg-blue-100 text-blue-800 font-medium cursor-pointer hover:bg-blue-200'
+                          : 'hover:bg-gray-100 cursor-pointer'
+                        : 'text-gray-300'
+                    }`}
+                  >
+                    {dayNumber > 0 && dayNumber <= 31 ? dayNumber : ''}
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="animate-pulse space-y-2">
-                    <div className="h-3 bg-gray-200 rounded w-full"></div>
-                    <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-                    <div className="h-8 bg-gray-200 rounded w-full mt-4"></div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          ) : events.length > 0 ? (
+                )
+              })}
+            </div>
+            <div className="mt-4 text-sm text-gray-600">
+              <span className="inline-block w-3 h-3 bg-blue-100 rounded mr-2"></span>
+              Days with events
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {eventsLoading ? (
+              // Loading skeleton
+              Array.from({ length: 3 }).map((_, index) => (
+                <Card key={index}>
+                  <CardHeader>
+                    <div className="animate-pulse">
+                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="animate-pulse space-y-2">
+                      <div className="h-3 bg-gray-200 rounded w-full"></div>
+                      <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                      <div className="h-8 bg-gray-200 rounded w-full mt-4"></div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : filteredEvents.length > 0 ? (
             // Real events
-            events.map((event) => (
+            filteredEvents.map((event) => (
               <Card key={event._id}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
@@ -787,20 +829,25 @@ export default function EventsClient() {
                 </CardContent>
               </Card>
             ))
-          ) : (
-            // No events message
-            <div className="col-span-full text-center py-12">
-              <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No Events Found</h3>
-              <p className="text-gray-600 mb-4">
-                {user?.role === "admin" || user?.role === "sk_official"
-                  ? "Create your first event to get started!"
-                  : "Check back later for new events."
-                }
-              </p>
-            </div>
-          )}
-        </div>
+            ) : (
+              // No events message
+              <div className="col-span-full text-center py-12">
+                <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  {localEventsFilter ? "No Local Events Found" : "No Events Found"}
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  {localEventsFilter
+                    ? `No events found in ${user?.barangay}, ${user?.municipality}. Try viewing all events.`
+                    : user?.role === "admin" || user?.role === "sk_official"
+                      ? "Create your first event to get started!"
+                      : "Check back later for new events."
+                  }
+                </p>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Quick Actions */}
         <div className="mt-8 bg-white rounded-lg shadow-sm p-6">
