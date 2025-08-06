@@ -1,17 +1,24 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false, // Enable for production
   },
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false, // Enable for production
   },
   images: {
-    unoptimized: true,
+    domains: ['localhost', 'your-backend-domain.com'],
+    unoptimized: process.env.NODE_ENV === 'development',
   },
-  // Force deployment trigger
+  output: 'standalone',
+  poweredByHeader: false,
+  compress: true,
   experimental: {
-    optimizeCss: false,
+    optimizeCss: true,
+  },
+  env: {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   },
 }
 
