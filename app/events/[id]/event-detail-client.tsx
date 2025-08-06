@@ -387,6 +387,14 @@ export default function EventDetailClient({ eventId }: { eventId: string }) {
             </CardContent>
           </Card>
         )}
+
+        {/* Participants Modal */}
+        <ParticipantsModal
+          isOpen={showParticipants}
+          onClose={() => setShowParticipants(false)}
+          eventId={eventId}
+          eventTitle={event?.title || "Event"}
+        />
       </div>
     </div>
   )
