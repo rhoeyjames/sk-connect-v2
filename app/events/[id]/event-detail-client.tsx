@@ -116,28 +116,45 @@ export default function EventDetailClient({ eventId }: { eventId: string }) {
     }
   }
 
-  const handleEditEvent = () => {
-    // TODO: Navigate to edit page or open edit modal
+  const handleManageEvent = () => {
+    // For now, show a modal with management options
     toast({
-      title: "Coming Soon",
-      description: "Event editing functionality will be available soon.",
+      title: "Event Management",
+      description: "Event editing functionality will be available soon. Use 'View Participants' to manage registrations.",
     })
   }
 
-  const handleDeleteEvent = () => {
-    // TODO: Implement delete confirmation dialog
-    toast({
-      title: "Coming Soon", 
-      description: "Event deletion functionality will be available soon.",
-    })
+  const handleViewParticipants = () => {
+    setShowParticipants(true)
   }
 
-  const handleRegisterEvent = () => {
-    // TODO: Implement event registration
-    toast({
-      title: "Coming Soon",
-      description: "Event registration will be available soon.",
-    })
+  const handleRegisterEvent = async () => {
+    try {
+      const token = localStorage.getItem("token")
+
+      if (!token) {
+        toast({
+          title: "Authentication Required",
+          description: "Please log in to register for events.",
+          variant: "destructive",
+        })
+        return
+      }
+
+      // TODO: Create proper registration form with emergency contact info
+      // For now, just show a coming soon message
+      toast({
+        title: "Coming Soon",
+        description: "Event registration form will be available soon.",
+      })
+    } catch (error) {
+      console.error("Registration error:", error)
+      toast({
+        title: "Error",
+        description: "Failed to register for event. Please try again.",
+        variant: "destructive",
+      })
+    }
   }
 
   if (loading) {
