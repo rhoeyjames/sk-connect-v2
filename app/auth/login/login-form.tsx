@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import { Mail, Lock, Loader2, AlertCircle, LogIn, Shield, Users, UserCheck } from "lucide-react"
+import apiClient from "@/lib/api"
 
 export default function LoginForm() {
   const [formData, setFormData] = useState({
