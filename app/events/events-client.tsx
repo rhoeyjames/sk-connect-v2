@@ -87,12 +87,13 @@ export default function EventsClient() {
         body: JSON.stringify({
           title: eventForm.title,
           description: eventForm.description,
-          date: new Date(eventForm.date + "T" + eventForm.time).toISOString(),
+          date: eventForm.date,
           time: eventForm.time,
           location: eventForm.location,
           category: eventForm.category,
           maxParticipants: parseInt(eventForm.maxParticipants) || 50,
-          registrationDeadline: new Date(eventForm.registrationDeadline + "T" + eventForm.registrationDeadlineTime).toISOString(),
+          registrationDeadline: eventForm.registrationDeadline,
+          registrationDeadlineTime: eventForm.registrationDeadlineTime,
           // Use user's location data for new events
           barangay: user?.barangay || "",
           municipality: user?.municipality || "",
