@@ -59,12 +59,16 @@ export default function Navbar() {
   }
 
   const navigation = [
-    { name: "Home", href: "/", icon: Home },
+    {
+      name: "Home",
+      href: user?.role === "admin" ? "/admin" : "/",
+      icon: user?.role === "admin" ? Shield : Home
+    },
     { name: "Events", href: "/events", icon: Calendar },
     { name: "About", href: "/about", icon: Info },
   ]
 
-  // Add admin navigation if user is admin
+  // Add admin dashboard as separate item for admin users
   if (user?.role === "admin") {
     navigation.push({ name: "Admin Dashboard", href: "/admin", icon: Shield })
   }
