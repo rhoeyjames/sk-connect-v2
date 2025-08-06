@@ -137,19 +137,44 @@ export default function EventsClient() {
     }
   }
 
-  const fetchEvents = async () => {
+  const fetchEvents = async (retryCount = 0) => {
     try {
       setEventsLoading(true)
-      const response = await fetch("/api/events")
+
+      // Add a small delay to avoid rapid retries
+      if (retryCount > 0) {
+        await new Promise(resolve => setTimeout(resolve, 1000 * retryCount))
+      }
+
+      const response = await fetch("/api/events", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // Add cache control to avoid caching issues
+        cache: "no-cache",
+      })
 
       if (response.ok) {
         const data = await response.json()
         setEvents(data.events || [])
       } else {
-        console.error("Failed to fetch events:", response.statusText)
+        console.error("Failed to fetch events:", response.status, response.statusText)
+        // If it's a server error and we haven't retried too many times, retry
+        if (response.status >= 500 && retryCount < 2) {
+          return fetchEvents(retryCount + 1)
+        }
       }
     } catch (error) {
-      console.error("Error fetching events:", error)
+      console.error("Error fetching events (attempt " + (retryCount + 1) + "):", error)
+
+      // Retry on network errors, but not too many times
+      if (retryCount < 2) {
+        return fetchEvents(retryCount + 1)
+      }
+
+      // If all retries failed, set events to empty array to show empty state
+      setEvents([])
     } finally {
       setEventsLoading(false)
     }
