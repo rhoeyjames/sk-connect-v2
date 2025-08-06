@@ -489,15 +489,44 @@ export default function EventsClient() {
                   </div>
                   {user?.role === "admin" || user?.role === "sk_official" ? (
                     <div className="flex gap-2 mt-4">
-                      <Button variant="outline" className="flex-1">
+                      <Button
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => {
+                          // Navigate to event details page
+                          router.push(`/events/${event._id}`)
+                        }}
+                      >
+                        <Eye className="h-4 w-4 mr-2" />
                         View Details
                       </Button>
-                      <Button className="flex-1">
-                        Manage Event
+                      <Button
+                        className="flex-1"
+                        onClick={() => {
+                          // TODO: Open edit event dialog
+                          toast({
+                            title: "Coming Soon",
+                            description: "Event editing functionality will be available soon.",
+                          })
+                        }}
+                      >
+                        <Settings className="h-4 w-4 mr-2" />
+                        Edit Event
                       </Button>
                     </div>
                   ) : (
-                    <Button className="w-full mt-4">Register for Event</Button>
+                    <Button
+                      className="w-full mt-4"
+                      onClick={() => {
+                        // TODO: Implement event registration
+                        toast({
+                          title: "Coming Soon",
+                          description: "Event registration will be available soon.",
+                        })
+                      }}
+                    >
+                      Register for Event
+                    </Button>
                   )}
                 </CardContent>
               </Card>
