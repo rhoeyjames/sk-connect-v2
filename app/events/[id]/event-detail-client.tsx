@@ -344,11 +344,11 @@ export default function EventDetailClient({ eventId }: { eventId: string }) {
             <div className="mt-8 pt-6 border-t">
               {isAdmin ? (
                 <div className="flex gap-4">
-                  <Button onClick={handleEditEvent} className="flex-1">
+                  <Button onClick={handleManageEvent} className="flex-1">
                     <Settings className="h-4 w-4 mr-2" />
                     Manage Event
                   </Button>
-                  <Button variant="outline" className="flex-1">
+                  <Button variant="outline" onClick={handleViewParticipants} className="flex-1">
                     <Users className="h-4 w-4 mr-2" />
                     View Participants
                   </Button>
