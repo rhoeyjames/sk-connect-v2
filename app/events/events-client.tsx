@@ -409,6 +409,163 @@ export default function EventsClient() {
                     </form>
                   </DialogContent>
                 </Dialog>
+
+                {/* Edit Event Dialog */}
+                <Dialog open={editEventOpen} onOpenChange={(open) => {
+                  setEditEventOpen(open)
+                  if (!open) {
+                    setEditingEvent(null)
+                    setEventForm({
+                      title: "",
+                      description: "",
+                      date: "",
+                      time: "",
+                      location: "",
+                      category: "",
+                      maxParticipants: "",
+                      registrationDeadline: "",
+                      registrationDeadlineTime: ""
+                    })
+                  }
+                }}>
+                  <DialogContent className="sm:max-w-[600px]">
+                    <DialogHeader>
+                      <DialogTitle>Edit Event</DialogTitle>
+                      <DialogDescription>
+                        Update the event details below.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleCreateEvent} className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-title">Event Title</Label>
+                          <Input
+                            id="edit-title"
+                            value={eventForm.title}
+                            onChange={(e) => handleInputChange("title", e.target.value)}
+                            placeholder="Enter event title"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-category">Category</Label>
+                          <Select value={eventForm.category} onValueChange={(value) => handleInputChange("category", value)}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="sports">Sports</SelectItem>
+                              <SelectItem value="education">Education</SelectItem>
+                              <SelectItem value="health">Health</SelectItem>
+                              <SelectItem value="environment">Environment</SelectItem>
+                              <SelectItem value="culture">Culture</SelectItem>
+                              <SelectItem value="livelihood">Livelihood</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-description">Description</Label>
+                        <Textarea
+                          id="edit-description"
+                          value={eventForm.description}
+                          onChange={(e) => handleInputChange("description", e.target.value)}
+                          placeholder="Describe your event..."
+                          rows={3}
+                          required
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-date">Date</Label>
+                          <Input
+                            id="edit-date"
+                            type="date"
+                            value={eventForm.date}
+                            onChange={(e) => handleInputChange("date", e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-time">Time</Label>
+                          <Input
+                            id="edit-time"
+                            type="time"
+                            value={eventForm.time}
+                            onChange={(e) => handleInputChange("time", e.target.value)}
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-location">Location</Label>
+                          <Input
+                            id="edit-location"
+                            value={eventForm.location}
+                            onChange={(e) => handleInputChange("location", e.target.value)}
+                            placeholder="Event location"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-maxParticipants">Max Participants</Label>
+                          <Input
+                            id="edit-maxParticipants"
+                            type="number"
+                            value={eventForm.maxParticipants}
+                            onChange={(e) => handleInputChange("maxParticipants", e.target.value)}
+                            placeholder="e.g. 50"
+                            min="1"
+                            max="1000"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-registrationDeadline">Registration Deadline</Label>
+                          <Input
+                            id="edit-registrationDeadline"
+                            type="date"
+                            value={eventForm.registrationDeadline}
+                            onChange={(e) => handleInputChange("registrationDeadline", e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-registrationDeadlineTime">Deadline Time</Label>
+                          <Input
+                            id="edit-registrationDeadlineTime"
+                            type="time"
+                            value={eventForm.registrationDeadlineTime}
+                            onChange={(e) => handleInputChange("registrationDeadlineTime", e.target.value)}
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end space-x-2 pt-4">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setEditEventOpen(false)}
+                          disabled={submitting}
+                        >
+                          Cancel
+                        </Button>
+                        <Button type="submit" disabled={submitting}>
+                          {submitting ? "Updating..." : "Update Event"}
+                        </Button>
+                      </div>
+                    </form>
+                  </DialogContent>
+                </Dialog>
                 </>
               )}
             </div>
