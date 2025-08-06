@@ -172,6 +172,16 @@ router.put("/:id", auth, skOfficialAuth, upload.single("eventImage"), handleMult
       updateData.image = `/uploads/events/${req.file.filename}`
     }
 
+    // Combine date and time into a proper Date object
+    if (updateData.date && updateData.time) {
+      updateData.date = new Date(updateData.date + "T" + updateData.time)
+    }
+
+    // Handle registration deadline
+    if (updateData.registrationDeadline && updateData.registrationDeadlineTime) {
+      updateData.registrationDeadline = new Date(updateData.registrationDeadline + "T" + updateData.registrationDeadlineTime)
+    }
+
     // Parse arrays if they come as strings
     if (typeof updateData.requirements === "string") {
       updateData.requirements = JSON.parse(updateData.requirements)
