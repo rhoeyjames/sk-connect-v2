@@ -171,10 +171,127 @@ export default function EventsClient() {
                 </div>
               </div>
               {(user.role === "admin" || user.role === "sk_official") && (
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Event
-                </Button>
+                <Dialog open={createEventOpen} onOpenChange={setCreateEventOpen}>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Event
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[600px]">
+                    <DialogHeader>
+                      <DialogTitle>Create New Event</DialogTitle>
+                      <DialogDescription>
+                        Fill in the details below to create a new community event.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleCreateEvent} className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="title">Event Title</Label>
+                          <Input
+                            id="title"
+                            value={eventForm.title}
+                            onChange={(e) => handleInputChange("title", e.target.value)}
+                            placeholder="Enter event title"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="category">Category</Label>
+                          <Select value={eventForm.category} onValueChange={(value) => handleInputChange("category", value)}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="sports">Sports</SelectItem>
+                              <SelectItem value="education">Education</SelectItem>
+                              <SelectItem value="health">Health & Wellness</SelectItem>
+                              <SelectItem value="culture">Culture & Arts</SelectItem>
+                              <SelectItem value="environment">Environment</SelectItem>
+                              <SelectItem value="community">Community Service</SelectItem>
+                              <SelectItem value="workshop">Workshop</SelectItem>
+                              <SelectItem value="meeting">Meeting</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="description">Description</Label>
+                        <Textarea
+                          id="description"
+                          value={eventForm.description}
+                          onChange={(e) => handleInputChange("description", e.target.value)}
+                          placeholder="Describe your event..."
+                          rows={3}
+                          required
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="date">Date</Label>
+                          <Input
+                            id="date"
+                            type="date"
+                            value={eventForm.date}
+                            onChange={(e) => handleInputChange("date", e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="time">Time</Label>
+                          <Input
+                            id="time"
+                            type="time"
+                            value={eventForm.time}
+                            onChange={(e) => handleInputChange("time", e.target.value)}
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="location">Location</Label>
+                          <Input
+                            id="location"
+                            value={eventForm.location}
+                            onChange={(e) => handleInputChange("location", e.target.value)}
+                            placeholder="Event location"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="maxParticipants">Max Participants</Label>
+                          <Input
+                            id="maxParticipants"
+                            type="number"
+                            value={eventForm.maxParticipants}
+                            onChange={(e) => handleInputChange("maxParticipants", e.target.value)}
+                            placeholder="Optional"
+                            min="1"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end space-x-2 pt-4">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setCreateEventOpen(false)}
+                          disabled={submitting}
+                        >
+                          Cancel
+                        </Button>
+                        <Button type="submit" disabled={submitting}>
+                          {submitting ? "Creating..." : "Create Event"}
+                        </Button>
+                      </div>
+                    </form>
+                  </DialogContent>
+                </Dialog>
               )}
             </div>
           </div>
