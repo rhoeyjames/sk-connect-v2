@@ -411,7 +411,18 @@ export default function EventsClient() {
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Community Events</h2>
-            <p className="text-gray-600">Discover and participate in local SK events and activities</p>
+            <p className="text-gray-600">
+              {user?.role === "admin" || user?.role === "sk_official"
+                ? "Manage and oversee community events and activities"
+                : "Discover and participate in local SK events and activities"
+              }
+            </p>
+            {(user?.role === "admin" || user?.role === "sk_official") && (
+              <div className="flex items-center mt-2">
+                <Settings className="h-4 w-4 mr-2 text-blue-600" />
+                <span className="text-sm text-blue-600 font-medium">Management Mode</span>
+              </div>
+            )}
           </div>
           <Button
             variant="outline"
