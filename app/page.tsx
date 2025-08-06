@@ -1,10 +1,65 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Users, Calendar, MessageSquare, TrendingUp, ArrowRight, Heart, Target, Globe } from "lucide-react"
+import { Users, Calendar, MessageSquare, TrendingUp, ArrowRight, Heart, Target, Globe, Shield, BarChart3, Settings } from "lucide-react"
+
+interface User {
+  id: string
+  firstName: string
+  lastName: string
+  email: string
+  role: "youth" | "sk_official" | "admin"
+  age: number
+  barangay: string
+}
 
 export default function HomePage() {
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+  const router = useRouter()
+
+  useEffect(() => {
+    // Check if user is logged in and redirect based on role
+    const token = localStorage.getItem("token")
+    const userData = localStorage.getItem("user")
+
+    if (token && userData) {
+      try {
+        const parsedUser = JSON.parse(userData)
+        setUser(parsedUser)
+
+        // Redirect admin users to their dashboard instead of showing youth landing page
+        if (parsedUser.role === "admin") {
+          router.push("/admin")
+          return
+        }
+      } catch (error) {
+        console.error("Error parsing user data:", error)
+        localStorage.removeItem("token")
+        localStorage.removeItem("user")
+      }
+    }
+    setLoading(false)
+  }, [router])
+
+  // Show loading state while checking user role
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
+  // If admin user somehow didn't redirect, show admin summary instead
+  if (user?.role === "admin") {
+    return <AdminHomePage user={user} />
+  }
   const features = [
     {
       icon: Users,
