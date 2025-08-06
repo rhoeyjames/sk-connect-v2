@@ -123,15 +123,26 @@ export default function EventsClient() {
         // Refresh events list
         await fetchEvents()
       } else {
-        let errorMessage = "Failed to create event"
+        let errorMessage = isEditing ? "Failed to update event" : "Failed to create event"
         try {
           const error = await response.json()
-          errorMessage = error.message || errorMessage
+          console.log("Backend error response:", error)
+
+          // Handle validation errors specifically
+          if (error.errors && typeof error.errors === 'object') {
+            const validationErrors = Object.values(error.errors).map((err: any) => err.message || err).join(', ')
+            errorMessage = validationErrors
+          } else if (error.message) {
+            errorMessage = error.message
+          } else if (error.error) {
+            errorMessage = error.error
+          }
         } catch (e) {
           // Handle cases where response body cannot be parsed
           errorMessage = `HTTP ${response.status}: ${response.statusText}`
         }
 
+        console.log("Displaying error message:", errorMessage)
         toast({
           title: "Error",
           description: errorMessage,
