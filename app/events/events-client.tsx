@@ -94,7 +94,8 @@ export default function EventsClient() {
           category: "",
           maxParticipants: ""
         })
-        // Refresh events list here if you have one
+        // Refresh events list
+        await fetchEvents()
       } else {
         let errorMessage = "Failed to create event"
         try {
