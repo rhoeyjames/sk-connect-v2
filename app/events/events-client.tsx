@@ -336,6 +336,29 @@ export default function EventsClient() {
                         </div>
                       </div>
 
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="registrationDeadline">Registration Deadline</Label>
+                          <Input
+                            id="registrationDeadline"
+                            type="date"
+                            value={eventForm.registrationDeadline}
+                            onChange={(e) => handleInputChange("registrationDeadline", e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="registrationDeadlineTime">Deadline Time</Label>
+                          <Input
+                            id="registrationDeadlineTime"
+                            type="time"
+                            value={eventForm.registrationDeadlineTime}
+                            onChange={(e) => handleInputChange("registrationDeadlineTime", e.target.value)}
+                            required
+                          />
+                        </div>
+                      </div>
+
                       <div className="flex justify-end space-x-2 pt-4">
                         <Button
                           type="button"
