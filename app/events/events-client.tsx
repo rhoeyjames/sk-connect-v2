@@ -244,16 +244,6 @@ export default function EventsClient() {
 
   const handleLocalEvents = () => {
     setLocalEventsFilter(!localEventsFilter)
-    const filteredEvents = localEventsFilter
-      ? events // Show all events
-      : events.filter(event => {
-          // Filter events by user's location
-          return user && (
-            event.location.toLowerCase().includes(user.barangay.toLowerCase()) ||
-            event.location.toLowerCase().includes(user.municipality.toLowerCase()) ||
-            event.location.toLowerCase().includes(user.province.toLowerCase())
-          )
-        })
 
     toast({
       title: localEventsFilter ? "All Events" : "Local Events",
@@ -261,6 +251,20 @@ export default function EventsClient() {
         ? "Showing all events"
         : `Showing events in ${user?.barangay}, ${user?.municipality}`,
     })
+  }
+
+  const handleRegisterForEvent = (event: Event) => {
+    setSelectedEventForRegistration(event)
+    setShowRegistrationModal(true)
+  }
+
+  const handleRegistrationSuccess = () => {
+    // Refresh events to update participant count
+    fetchEvents()
+  }
+
+  const handleEventClick = (event: Event) => {
+    router.push(`/events/${event._id}`)
   }
 
   useEffect(() => {
