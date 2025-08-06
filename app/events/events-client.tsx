@@ -74,6 +74,7 @@ export default function EventsClient() {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
+        cache: "no-cache",
         body: JSON.stringify({
           title: eventForm.title,
           description: eventForm.description,
