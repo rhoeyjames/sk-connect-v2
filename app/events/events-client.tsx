@@ -13,6 +13,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import { Calendar, MapPin, Users, Clock, Plus, RefreshCw, Eye, Settings } from "lucide-react"
+import EventRegistrationModal from "@/components/event-registration-modal"
+import EventCalendar from "@/components/event-calendar"
 
 interface User {
   id: string
