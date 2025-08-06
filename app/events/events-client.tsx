@@ -264,12 +264,11 @@ export default function EventsClient() {
                             <SelectContent>
                               <SelectItem value="sports">Sports</SelectItem>
                               <SelectItem value="education">Education</SelectItem>
-                              <SelectItem value="health">Health & Wellness</SelectItem>
-                              <SelectItem value="culture">Culture & Arts</SelectItem>
+                              <SelectItem value="health">Health</SelectItem>
                               <SelectItem value="environment">Environment</SelectItem>
-                              <SelectItem value="community">Community Service</SelectItem>
-                              <SelectItem value="workshop">Workshop</SelectItem>
-                              <SelectItem value="meeting">Meeting</SelectItem>
+                              <SelectItem value="culture">Culture</SelectItem>
+                              <SelectItem value="livelihood">Livelihood</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
