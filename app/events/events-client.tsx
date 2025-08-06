@@ -151,7 +151,6 @@ export default function EventsClient() {
         let errorMessage = isEditing ? "Failed to update event" : "Failed to create event"
         try {
           const error = await response.json()
-          console.log("Backend error response:", error)
 
           // Handle validation errors specifically
           if (error.errors && typeof error.errors === 'object') {
@@ -166,8 +165,6 @@ export default function EventsClient() {
           // Handle cases where response body cannot be parsed
           errorMessage = `HTTP ${response.status}: ${response.statusText}`
         }
-
-        console.log("Displaying error message:", errorMessage)
         toast({
           title: "Error",
           description: errorMessage,
