@@ -706,45 +706,10 @@ export default function EventsClient() {
 
         {showCalendarView ? (
           // Calendar View
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Event Calendar</h3>
-            <div className="grid grid-cols-7 gap-2 mb-4">
-              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                <div key={day} className="text-center text-sm font-medium text-gray-500 py-2">
-                  {day}
-                </div>
-              ))}
-            </div>
-            <div className="grid grid-cols-7 gap-2">
-              {/* Simple calendar representation */}
-              {Array.from({ length: 35 }).map((_, index) => {
-                const dayNumber = index - 5 + 1 // Assuming month starts on a Wednesday
-                const hasEvent = filteredEvents.some(event => {
-                  const eventDate = new Date(event.date)
-                  return eventDate.getDate() === dayNumber && dayNumber > 0 && dayNumber <= 31
-                })
-
-                return (
-                  <div
-                    key={index}
-                    className={`h-10 flex items-center justify-center text-sm rounded ${
-                      dayNumber > 0 && dayNumber <= 31
-                        ? hasEvent
-                          ? 'bg-blue-100 text-blue-800 font-medium cursor-pointer hover:bg-blue-200'
-                          : 'hover:bg-gray-100 cursor-pointer'
-                        : 'text-gray-300'
-                    }`}
-                  >
-                    {dayNumber > 0 && dayNumber <= 31 ? dayNumber : ''}
-                  </div>
-                )
-              })}
-            </div>
-            <div className="mt-4 text-sm text-gray-600">
-              <span className="inline-block w-3 h-3 bg-blue-100 rounded mr-2"></span>
-              Days with events
-            </div>
-          </div>
+          <EventCalendar
+            events={filteredEvents}
+            onEventClick={handleEventClick}
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {eventsLoading ? (
