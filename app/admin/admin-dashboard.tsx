@@ -32,55 +32,42 @@ export default function AdminDashboard() {
   const { toast } = useToast()
 
   useEffect(() => {
-    // Load mock users
-    const mockUsers: User[] = [
-      {
-        id: "admin-1",
-        firstName: "Admin",
-        lastName: "User",
-        email: "admin@skconnect.com",
-        role: "admin",
-        age: 25,
-        barangay: "Admin Barangay",
-        municipality: "Admin City",
-        province: "Admin Province",
-        isActive: true,
-        createdAt: "2024-01-01",
-      },
-      {
-        id: "youth-1",
-        firstName: "Test",
-        lastName: "Youth",
-        email: "youth@test.com",
-        role: "youth",
-        age: 20,
-        barangay: "Test Barangay",
-        municipality: "Test City",
-        province: "Test Province",
-        isActive: true,
-        createdAt: "2024-01-15",
-      },
-    ]
-
-    // Add any users from localStorage
-    const storedUser = localStorage.getItem("user")
-    if (storedUser) {
+    const fetchUsers = async () => {
       try {
-        const user = JSON.parse(storedUser)
-        const existingUser = mockUsers.find((u) => u.email === user.email)
-        if (!existingUser && user.role !== "admin") {
-          mockUsers.push({
+        const token = localStorage.getItem("token")
+        const response = await fetch("/api/admin/users", {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          // Map _id to id for compatibility
+          const mappedUsers = (data.users || []).map((user: any) => ({
             ...user,
-            isActive: true,
-            createdAt: new Date().toISOString().split("T")[0],
+            id: user._id || user.id,
+          }))
+          setUsers(mappedUsers)
+        } else {
+          console.error("Failed to fetch users:", response.statusText)
+          toast({
+            title: "Error",
+            description: "Failed to load users",
+            variant: "destructive",
           })
         }
       } catch (error) {
-        console.error("Error parsing stored user:", error)
+        console.error("Error fetching users:", error)
+        toast({
+          title: "Error",
+          description: "Failed to connect to server",
+          variant: "destructive",
+        })
       }
     }
 
-    setUsers(mockUsers)
+    fetchUsers()
   }, [])
 
   const filteredUsers = users.filter((user) => {
@@ -99,20 +86,77 @@ export default function AdminDashboard() {
     return matchesSearch && matchesRole && matchesStatus
   })
 
-  const handleRoleChange = (userId: string, newRole: string) => {
-    setUsers((prev) => prev.map((user) => (user.id === userId ? { ...user, role: newRole as User["role"] } : user)))
-    toast({
-      title: "Role Updated",
-      description: "User role has been successfully updated.",
-    })
+  const handleRoleChange = async (userId: string, newRole: string) => {
+    try {
+      const token = localStorage.getItem("token")
+      const response = await fetch(`/api/admin/users/${userId}/role`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ role: newRole }),
+      })
+
+      if (response.ok) {
+        setUsers((prev) => prev.map((user) => (user.id === userId ? { ...user, role: newRole as User["role"] } : user)))
+        toast({
+          title: "Role Updated",
+          description: "User role has been successfully updated.",
+        })
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to update user role",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error("Error updating role:", error)
+      toast({
+        title: "Error",
+        description: "Failed to update user role",
+        variant: "destructive",
+      })
+    }
   }
 
-  const handleStatusToggle = (userId: string) => {
-    setUsers((prev) => prev.map((user) => (user.id === userId ? { ...user, isActive: !user.isActive } : user)))
-    toast({
-      title: "Status Updated",
-      description: "User status has been successfully updated.",
-    })
+  const handleStatusToggle = async (userId: string) => {
+    try {
+      const token = localStorage.getItem("token")
+      const user = users.find(u => u.id === userId)
+      const newStatus = !user?.isActive
+
+      const response = await fetch(`/api/admin/users/${userId}/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ isActive: newStatus }),
+      })
+
+      if (response.ok) {
+        setUsers((prev) => prev.map((user) => (user.id === userId ? { ...user, isActive: newStatus } : user)))
+        toast({
+          title: "Status Updated",
+          description: "User status has been successfully updated.",
+        })
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to update user status",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error("Error updating status:", error)
+      toast({
+        title: "Error",
+        description: "Failed to update user status",
+        variant: "destructive",
+      })
+    }
   }
 
   const exportUsers = () => {

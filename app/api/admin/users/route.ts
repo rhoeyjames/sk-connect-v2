@@ -1,11 +1,18 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 const BACKEND_URL = 'http://localhost:5000'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const response = await fetch(`${BACKEND_URL}/api/admin/users`)
-    
+    const authorization = request.headers.get('authorization')
+
+    const response = await fetch(`${BACKEND_URL}/api/admin/users`, {
+      headers: {
+        ...(authorization && { 'Authorization': authorization }),
+        'Content-Type': 'application/json',
+      },
+    })
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
       return NextResponse.json(errorData, { status: response.status })
