@@ -202,13 +202,9 @@ export default function EventDetailClient({ eventId }: { eventId: string }) {
           
           {canEdit && (
             <div className="flex gap-2">
-              <Button variant="outline" onClick={handleEditEvent}>
-                <Edit className="h-4 w-4 mr-2" />
-                Edit Event
-              </Button>
-              <Button variant="destructive" onClick={handleDeleteEvent}>
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete Event
+              <Button variant="outline" onClick={handleViewParticipants}>
+                <Users className="h-4 w-4 mr-2" />
+                View Participants
               </Button>
             </div>
           )}
