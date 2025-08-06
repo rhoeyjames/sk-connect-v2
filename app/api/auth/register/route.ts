@@ -25,6 +25,8 @@ const User = mongoose.models.User || mongoose.model('User', userSchema)
 
 export async function POST(request: NextRequest) {
   try {
+    await connectDB()
+
     const userData = await request.json()
 
     // Validate required fields
@@ -54,46 +56,55 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if user already exists (in production, check database)
-    // For demo purposes, we'll just return success
-    
+    // Check if user already exists
+    const existingUser = await User.findOne({ email: email.toLowerCase() })
+    if (existingUser) {
+      return NextResponse.json(
+        { message: 'User with this email already exists' },
+        { status: 409 }
+      )
+    }
+
     // Hash password
     const saltRounds = 10
     const hashedPassword = await bcrypt.hash(password, saltRounds)
 
-    // In production, save to database
-    // For demo, we'll simulate successful registration
-    const newUser = {
-      id: Date.now().toString(),
+    // Create new user
+    const newUser = await User.create({
       firstName,
       lastName,
       email: email.toLowerCase(),
+      password: hashedPassword,
       role: 'youth', // Default role
-      age: parseInt(age) || null,
+      age: parseInt(age) || undefined,
       barangay,
       municipality,
       province,
-      phoneNumber: userData.phoneNumber || null,
-      dateOfBirth: userData.dateOfBirth || null,
+      phoneNumber: userData.phoneNumber || undefined,
+      dateOfBirth: userData.dateOfBirth || undefined,
       interests: userData.interests || [],
-      createdAt: new Date().toISOString()
-    }
+      isActive: true
+    })
 
     // Generate JWT token
     const token = jwt.sign(
-      { 
-        id: newUser.id, 
-        email: newUser.email, 
-        role: newUser.role 
+      {
+        id: newUser._id,
+        email: newUser.email,
+        role: newUser.role
       },
       process.env.JWT_SECRET || 'fallback-dev-secret',
       { expiresIn: '7d' }
     )
 
+    // Return user data (excluding password)
+    const userObject = newUser.toObject()
+    const { password: _, ...userWithoutPassword } = userObject
+
     return NextResponse.json({
       message: 'Registration successful',
       token,
-      user: newUser
+      user: userWithoutPassword
     })
 
   } catch (error) {
