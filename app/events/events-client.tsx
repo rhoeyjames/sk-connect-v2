@@ -166,6 +166,7 @@ export default function EventsClient() {
     }
     
     setLoading(false)
+    fetchEvents()
   }, [router])
 
   if (loading) {
