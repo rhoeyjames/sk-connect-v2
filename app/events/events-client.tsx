@@ -837,13 +837,7 @@ export default function EventsClient() {
                   ) : (
                     <Button
                       className="w-full mt-4"
-                      onClick={() => {
-                        // TODO: Implement event registration
-                        toast({
-                          title: "Coming Soon",
-                          description: "Event registration will be available soon.",
-                        })
-                      }}
+                      onClick={() => handleRegisterForEvent(event)}
                     >
                       Register for Event
                     </Button>
