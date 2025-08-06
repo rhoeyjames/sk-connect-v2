@@ -179,13 +179,12 @@ export default function EventsClient() {
                 </div>
               </div>
               {(user.role === "admin" || user.role === "sk_official") && (
-                <Dialog open={createEventOpen} onOpenChange={setCreateEventOpen}>
-                  <DialogTrigger asChild>
-                    <Button>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Create Event
-                    </Button>
-                  </DialogTrigger>
+                <>
+                  <Button onClick={() => setCreateEventOpen(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Event
+                  </Button>
+                  <Dialog open={createEventOpen} onOpenChange={setCreateEventOpen}>
                   <DialogContent className="sm:max-w-[600px]">
                     <DialogHeader>
                       <DialogTitle>Create New Event</DialogTitle>
@@ -300,6 +299,7 @@ export default function EventsClient() {
                     </form>
                   </DialogContent>
                 </Dialog>
+                </>
               )}
             </div>
           </div>
