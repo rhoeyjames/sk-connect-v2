@@ -9,7 +9,11 @@
     "dev": "next dev",
     "dev:full": "concurrently \"npm run dev\" \"npm run backend\"",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "deploy": "vercel --prod",
+    "deploy:preview": "vercel",
+    "deploy:check": "npm run lint && npm run build",
+    "vercel-build": "npm run build"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
