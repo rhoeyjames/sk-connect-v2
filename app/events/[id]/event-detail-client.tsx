@@ -119,11 +119,7 @@ export default function EventDetailClient({ eventId }: { eventId: string }) {
   }
 
   const handleManageEvent = () => {
-    // For now, show a modal with management options
-    toast({
-      title: "Event Management",
-      description: "Event editing functionality will be available soon. Use 'View Participants' to manage registrations.",
-    })
+    setShowManageEvent(true)
   }
 
   const handleViewParticipants = () => {
