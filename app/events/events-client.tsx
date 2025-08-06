@@ -54,7 +54,9 @@ export default function EventsClient() {
     time: "",
     location: "",
     category: "",
-    maxParticipants: ""
+    maxParticipants: "",
+    registrationDeadline: "",
+    registrationDeadlineTime: ""
   })
   const [submitting, setSubmitting] = useState(false)
   const router = useRouter()
