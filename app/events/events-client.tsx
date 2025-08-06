@@ -123,6 +123,24 @@ export default function EventsClient() {
     }
   }
 
+  const fetchEvents = async () => {
+    try {
+      setEventsLoading(true)
+      const response = await fetch("/api/events")
+
+      if (response.ok) {
+        const data = await response.json()
+        setEvents(data.events || [])
+      } else {
+        console.error("Failed to fetch events:", response.statusText)
+      }
+    } catch (error) {
+      console.error("Error fetching events:", error)
+    } finally {
+      setEventsLoading(false)
+    }
+  }
+
   const handleInputChange = (field: string, value: string) => {
     setEventForm(prev => ({ ...prev, [field]: value }))
   }
