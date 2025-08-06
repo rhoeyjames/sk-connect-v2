@@ -887,6 +887,17 @@ export default function EventsClient() {
             </Button>
           </div>
         </div>
+
+        {/* Event Registration Modal */}
+        <EventRegistrationModal
+          isOpen={showRegistrationModal}
+          onClose={() => {
+            setShowRegistrationModal(false)
+            setSelectedEventForRegistration(null)
+          }}
+          event={selectedEventForRegistration}
+          onRegistrationSuccess={handleRegistrationSuccess}
+        />
       </div>
     </div>
   )
