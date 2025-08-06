@@ -758,16 +758,20 @@ export default function EventsClient() {
         {/* Quick Actions */}
         <div className="mt-8 bg-white rounded-lg shadow-sm p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button variant="outline" className="flex items-center justify-center h-16">
-              <Users className="h-5 w-5 mr-2" />
-              My Registrations
-            </Button>
-            <Button variant="outline" className="flex items-center justify-center h-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Button
+              variant="outline"
+              className="flex items-center justify-center h-16"
+              onClick={handleEventCalendar}
+            >
               <Calendar className="h-5 w-5 mr-2" />
               Event Calendar
             </Button>
-            <Button variant="outline" className="flex items-center justify-center h-16">
+            <Button
+              variant="outline"
+              className="flex items-center justify-center h-16"
+              onClick={handleLocalEvents}
+            >
               <MapPin className="h-5 w-5 mr-2" />
               Local Events
             </Button>
