@@ -7,9 +7,11 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const authHeader = request.headers.get('authorization')
     const { id } = params
-    
+    const authHeader = request.headers.get('authorization')
+
+    console.log(`Getting event ${id} from: ${BACKEND_URL}/api/events/${id}`)
+
     const response = await fetch(`${BACKEND_URL}/api/events/${id}`, {
       method: 'GET',
       headers: {
@@ -18,17 +20,42 @@ export async function GET(
       },
     })
 
-    const data = await response.json()
+    console.log(`Backend response status: ${response.status}`)
+
+    // Handle non-JSON responses
+    let data
+    const contentType = response.headers.get('content-type')
+    if (contentType && contentType.includes('application/json')) {
+      try {
+        data = await response.json()
+      } catch (parseError) {
+        console.error('Failed to parse JSON response:', parseError)
+        const text = await response.text()
+        console.error('Raw response:', text)
+        return NextResponse.json(
+          { message: 'Invalid response from backend', details: text },
+          { status: 502 }
+        )
+      }
+    } else {
+      const text = await response.text()
+      console.error('Non-JSON response from backend:', text)
+      return NextResponse.json(
+        { message: 'Backend returned non-JSON response', details: text },
+        { status: 502 }
+      )
+    }
 
     if (!response.ok) {
+      console.error('Backend error response:', data)
       return NextResponse.json(data, { status: response.status })
     }
 
     return NextResponse.json(data)
   } catch (error) {
-    console.error('Proxy error:', error)
+    console.error('Event fetch error:', error)
     return NextResponse.json(
-      { message: 'Internal server error' },
+      { message: 'Failed to connect to backend', error: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }
