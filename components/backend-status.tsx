@@ -108,14 +108,12 @@ export default function BackendStatus() {
 
         {status === "disconnected" && (
           <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t">
-            <p><strong>To start the backend:</strong></p>
+            <p><strong>Backend Status:</strong></p>
+            <p>Connected to Railway deployment:</p>
             <code className="block bg-muted p-2 rounded text-xs">
-              cd backend && npm run dev
+              {process.env.NEXT_PUBLIC_BACKEND_URL || 'https://sk-connect-backend-production.up.railway.app'}
             </code>
-            <p>Or use the npm script:</p>
-            <code className="block bg-muted p-2 rounded text-xs">
-              npm run backend
-            </code>
+            <p className="text-amber-600">If disconnected, check your Railway deployment status.</p>
           </div>
         )}
       </CardContent>
