@@ -733,8 +733,8 @@ export default function EventsClient() {
               ))
             ) : filteredEvents.length > 0 ? (
             // Real events
-            filteredEvents.map((event) => (
-              <Card key={event._id}>
+            filteredEvents.map((event, index) => (
+              <Card key={event._id || `event-${index}`}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">{event.title}</CardTitle>
