@@ -84,7 +84,7 @@ export default function BackendStatus() {
           <Alert>
             <CheckCircle className="h-4 w-4" />
             <AlertDescription>
-              Backend API is running on http://localhost:5000
+              Backend API is running on {process.env.NEXT_PUBLIC_BACKEND_URL || 'https://sk-connect-backend-production.up.railway.app'}
             </AlertDescription>
           </Alert>
         )}
