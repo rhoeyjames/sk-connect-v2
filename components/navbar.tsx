@@ -1,8 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
+import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -17,81 +18,10 @@ import {
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
 import { Menu, Home, Calendar, Users, Info, LogIn, UserPlus, Shield, LogOut, Settings } from "lucide-react"
 
-interface User {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-  role: "youth" | "sk_official" | "admin"
-  age: number
-  barangay: string
-}
-
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+  const { user, loading, logout } = useAuth()
   const pathname = usePathname()
-  const router = useRouter()
-
-  useEffect(() => {
-    // Function to check authentication state
-    const checkAuthState = () => {
-      const token = localStorage.getItem("token")
-      const userData = localStorage.getItem("user")
-
-      if (token && userData) {
-        try {
-          setUser(JSON.parse(userData))
-        } catch (error) {
-          console.error("Error parsing user data:", error)
-          localStorage.removeItem("token")
-          localStorage.removeItem("user")
-          setUser(null)
-        }
-      } else {
-        setUser(null)
-      }
-      setLoading(false)
-    }
-
-    // Check on initial load
-    checkAuthState()
-
-    // Listen for storage changes (when user logs in/out in another tab)
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "token" || e.key === "user") {
-        checkAuthState()
-      }
-    }
-
-    // Listen for focus events (when user returns to tab after login)
-    const handleFocus = () => {
-      checkAuthState()
-    }
-
-    // Custom event for when auth state changes in same tab
-    const handleAuthChange = () => {
-      checkAuthState()
-    }
-
-    window.addEventListener("storage", handleStorageChange)
-    window.addEventListener("focus", handleFocus)
-    window.addEventListener("authStateChange", handleAuthChange)
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange)
-      window.removeEventListener("focus", handleFocus)
-      window.removeEventListener("authStateChange", handleAuthChange)
-    }
-  }, [])
-
-  const handleLogout = () => {
-    localStorage.removeItem("token")
-    localStorage.removeItem("user")
-    setUser(null)
-    router.push("/")
-  }
 
   // Create role-based navigation
   const navigation = user?.role === "admin"
