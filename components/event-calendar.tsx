@@ -248,9 +248,9 @@ export default function EventCalendar({ events, onEventClick }: EventCalendarPro
             {selectedDate ? (
               selectedDateEvents.length > 0 ? (
                 <div className="space-y-3">
-                  {selectedDateEvents.map(event => (
+                  {selectedDateEvents.map((event, index) => (
                     <div
-                      key={event._id}
+                      key={event._id || `event-${index}`}
                       onClick={() => onEventClick?.(event)}
                       className="bg-white rounded-lg p-3 cursor-pointer hover:shadow-md transition-shadow"
                     >
