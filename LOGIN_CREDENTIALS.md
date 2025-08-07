@@ -1,32 +1,31 @@
 # SKConnect Login Credentials
 
-## Database Connected ✅
-Your MongoDB database is now connected: `mernapp.zomz5.mongodb.net/sk-connect`
+## Backend Connected ✅
+Your frontend is now connected to your deployed backend:
+**Backend URL**: https://sk-connect-backend-production.up.railway.app
 
-## Demo Accounts (Auto-Created)
-These accounts will be automatically created when you first try to log in:
+## How to Login
+Use the existing accounts in your backend database, or register new accounts through the registration form.
 
-### Admin Account
-- **Email**: admin@skconnect.com
-- **Password**: password
-- **Role**: Administrator
+### If you have existing accounts:
+Use your existing email and password from your backend database.
 
-### SK Official Account
-- **Email**: sk@skconnect.com
-- **Password**: password
-- **Role**: SK Official
+### If you need to create accounts:
+1. Go to the registration page
+2. Fill out the registration form
+3. Your account will be created in your MongoDB database
+4. Login with your new credentials
 
-### Youth Member Account
-- **Email**: youth@skconnect.com
-- **Password**: password
-- **Role**: Youth Member
+### Admin Setup (if needed):
+If you need to create an admin account, you can use the admin promotion endpoint or create one directly in your database.
 
-## How It Works
-1. When you try to log in, the app connects to your MongoDB database
-2. If no users exist, demo accounts are automatically created
-3. You can also register new accounts through the registration form
-4. All user data is stored in your MongoDB database
+## Backend Features
+- **Authentication**: Login/Register with JWT tokens
+- **User Management**: Admin can manage users and roles
+- **Event Management**: Create and manage events
+- **Registration System**: Users can register for events
+- **Database**: All data stored in your MongoDB database
 
 ---
 
-**Note**: Demo accounts are created with password "password" for easy testing. You can register additional accounts or modify existing ones as needed.
+**Note**: Since you're using your deployed backend, all authentication and data management goes through your Railway deployment. Check your backend logs if you encounter any issues.
