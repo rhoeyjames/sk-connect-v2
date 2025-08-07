@@ -39,12 +39,48 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const body = await request.json()
-    const authHeader = request.headers.get('authorization')
     const { id } = params
+    const authHeader = request.headers.get('authorization')
+    const contentType = request.headers.get('content-type')
 
-    console.log(`Updating event at: ${BACKEND_URL}/api/events/${id}`)
-    console.log('Update data:', JSON.stringify(body, null, 2))
+    console.log(`Updating event ${id} at: ${BACKEND_URL}/api/events/${id}`)
+    console.log('Content-Type:', contentType)
+
+    let body
+    let requestBody
+
+    // Handle both JSON and FormData
+    if (contentType && contentType.includes('application/json')) {
+      body = await request.json()
+      requestBody = JSON.stringify(body)
+      console.log('JSON data:', JSON.stringify(body, null, 2))
+    } else {
+      // Handle FormData
+      const formData = await request.formData()
+      body = Object.fromEntries(formData.entries())
+
+      // Convert FormData to JSON for backend
+      const jsonData: any = {}
+      for (const [key, value] of formData.entries()) {
+        if (key === 'requirements' || key === 'tags') {
+          try {
+            jsonData[key] = JSON.parse(value as string)
+          } catch {
+            jsonData[key] = (value as string).split(',').map(s => s.trim()).filter(s => s)
+          }
+        } else if (key === 'maxParticipants') {
+          jsonData[key] = parseInt(value as string) || 50
+        } else if (key === 'isRegistrationOpen') {
+          jsonData[key] = value === 'true'
+        } else {
+          jsonData[key] = value
+        }
+      }
+
+      body = jsonData
+      requestBody = JSON.stringify(jsonData)
+      console.log('FormData converted to JSON:', JSON.stringify(jsonData, null, 2))
+    }
 
     const response = await fetch(`${BACKEND_URL}/api/events/${id}`, {
       method: 'PUT',
@@ -52,15 +88,15 @@ export async function PUT(
         'Content-Type': 'application/json',
         ...(authHeader && { Authorization: authHeader }),
       },
-      body: JSON.stringify(body),
+      body: requestBody,
     })
 
     console.log(`Backend response status: ${response.status}`)
 
     // Handle non-JSON responses
     let data
-    const contentType = response.headers.get('content-type')
-    if (contentType && contentType.includes('application/json')) {
+    const responseContentType = response.headers.get('content-type')
+    if (responseContentType && responseContentType.includes('application/json')) {
       try {
         data = await response.json()
       } catch (parseError) {
