@@ -53,38 +53,15 @@ export default function LoginForm() {
     }
 
     try {
-      // Use real backend API
-      const data = await apiClient.login(formData.email, formData.password) as any
-
-      // Validate that the user's actual role matches the selected role
-      if (data?.user?.role !== formData.role) {
-        setError(`This account is registered as ${data?.user?.role === 'admin' ? 'Administrator' : data?.user?.role === 'sk_official' ? 'SK Official' : 'Youth Member'}. Please select the correct role.`)
-        setIsLoading(false)
-        return
-      }
-
-      // Store auth data
-      if (data?.token && data?.user) {
-        localStorage.setItem("token", data.token)
-        localStorage.setItem("user", JSON.stringify(data.user))
-      }
-
-      // Dispatch custom event to notify navbar of auth state change
-      window.dispatchEvent(new Event("authStateChange"))
+      // Use auth context login method
+      await login(formData.email, formData.password)
 
       toast({
         title: "Login Successful!",
-        description: `Welcome back, ${data.user.firstName}!`,
+        description: "Welcome back!",
       })
 
-      // Redirect based on user role
-      if (data.user.role === "admin") {
-        router.push("/admin")
-      } else if (data.user.role === "sk_official") {
-        router.push("/events") // SK Officials go to events page
-      } else {
-        router.push("/events") // Youth members go to events page
-      }
+      // The AuthContext will handle redirects automatically
     } catch (error: any) {
       console.error('Login error:', error)
       setError(error.message || "Login failed. Please check your credentials and try again.")
