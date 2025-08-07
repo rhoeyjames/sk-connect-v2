@@ -42,6 +42,29 @@ interface Event {
   currentParticipants: number
   status: string
   registrationDeadline?: string
+  barangay: string
+  municipality: string
+  province: string
+}
+
+// Eligibility checking function
+function checkEventEligibility(user: any, event: Event) {
+  if (user.role === 'admin' || user.role === 'sk_official') {
+    return { eligible: true, reason: '', isPrivileged: true }
+  }
+
+  const userBarangay = user.barangay?.toLowerCase().trim()
+  const eventBarangay = event.barangay?.toLowerCase().trim()
+
+  if (!userBarangay) {
+    return { eligible: false, reason: 'Profile missing barangay info', isPrivileged: false }
+  }
+
+  if (userBarangay !== eventBarangay) {
+    return { eligible: false, reason: `Only for ${event.barangay} residents`, isPrivileged: false }
+  }
+
+  return { eligible: true, reason: '', isPrivileged: false }
 }
 
 export default function EventsClient() {
