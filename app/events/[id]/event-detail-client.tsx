@@ -90,12 +90,20 @@ export default function EventDetailClient({ eventId }: { eventId: string }) {
     fetchEventDetails()
   }, [eventId, router])
 
-  const fetchEventDetails = async () => {
+  const fetchEventDetails = async (retryCount = 0) => {
     try {
       setLoading(true)
       const token = localStorage.getItem("token")
 
-      console.log(`Fetching event details for ID: ${eventId}`)
+      console.log(`Fetching event details for ID: ${eventId} (attempt ${retryCount + 1})`)
+
+      // Add a small delay for retries
+      if (retryCount > 0) {
+        await new Promise(resolve => setTimeout(resolve, 1000 * retryCount))
+      }
+
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
 
       const response = await fetch(`/api/events/${eventId}`, {
         method: 'GET',
@@ -104,8 +112,10 @@ export default function EventDetailClient({ eventId }: { eventId: string }) {
           ...(token && { 'Authorization': `Bearer ${token}` }),
         },
         cache: 'no-cache',
+        signal: controller.signal,
       })
 
+      clearTimeout(timeoutId)
       console.log(`Event detail response status: ${response.status}`)
 
       if (response.ok) {
@@ -114,6 +124,11 @@ export default function EventDetailClient({ eventId }: { eventId: string }) {
         setEvent(data.event || data)
       } else {
         console.error("Failed to fetch event details:", response.status, response.statusText)
+
+        // Retry on server errors
+        if (response.status >= 500 && retryCount < 2) {
+          return fetchEventDetails(retryCount + 1)
+        }
 
         let errorMessage = "Failed to load event details"
         try {
@@ -134,6 +149,14 @@ export default function EventDetailClient({ eventId }: { eventId: string }) {
       }
     } catch (error) {
       console.error("Error fetching event details:", error)
+
+      // Retry on network errors
+      if (retryCount < 2 && error instanceof Error &&
+          (error.name === 'AbortError' || error.message.includes('fetch'))) {
+        console.log(`Retrying fetch after error: ${error.message}`)
+        return fetchEventDetails(retryCount + 1)
+      }
+
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to connect to server",
