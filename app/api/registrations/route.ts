@@ -4,50 +4,26 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://sk-connect-b
 
 export async function GET(request: NextRequest) {
   try {
-    // Verify token
-    const { user, error } = await verifyToken(request)
-    if (error) {
-      return NextResponse.json({ message: error }, { status: 401 })
-    }
+    const authHeader = request.headers.get('authorization')
+    const url = new URL(request.url)
 
-    await connectDB()
-
-    // Get query parameters
-    const { searchParams } = new URL(request.url)
-    const eventId = searchParams.get('eventId')
-    const userId = searchParams.get('userId')
-    const status = searchParams.get('status')
-
-    // Build query
-    let query: any = {}
-    
-    if (eventId) {
-      query.eventId = eventId
-    }
-    
-    if (userId) {
-      query.userId = userId
-    }
-    
-    if (status) {
-      query.status = status
-    }
-
-    // Get registrations
-    const registrations = await Registration.find(query)
-      .populate('eventId', 'title date location')
-      .populate('userId', 'firstName lastName email')
-      .sort({ createdAt: -1 })
-
-    return NextResponse.json({
-      registrations: registrations.map(reg => ({
-        ...reg.toObject(),
-        _id: reg._id.toString()
-      }))
+    const response = await fetch(`${BACKEND_URL}/api/registrations${url.search}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(authHeader && { Authorization: authHeader }),
+      },
     })
 
+    const data = await response.json()
+
+    if (!response.ok) {
+      return NextResponse.json(data, { status: response.status })
+    }
+
+    return NextResponse.json(data)
   } catch (error) {
-    console.error('Registrations fetch error:', error)
+    console.error('Proxy error:', error)
     return NextResponse.json(
       { message: 'Internal server error' },
       { status: 500 }
@@ -57,59 +33,27 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // Verify token
-    const { user, error } = await verifyToken(request)
-    if (error) {
-      return NextResponse.json({ message: error }, { status: 401 })
-    }
+    const body = await request.json()
+    const authHeader = request.headers.get('authorization')
 
-    await connectDB()
-
-    const { eventId, notes, additionalInfo } = await request.json()
-
-    if (!eventId) {
-      return NextResponse.json(
-        { message: 'Event ID is required' },
-        { status: 400 }
-      )
-    }
-
-    // Check if user already registered for this event
-    const existingRegistration = await Registration.findOne({
-      eventId,
-      userId: user.id
+    const response = await fetch(`${BACKEND_URL}/api/registrations`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(authHeader && { Authorization: authHeader }),
+      },
+      body: JSON.stringify(body),
     })
 
-    if (existingRegistration) {
-      return NextResponse.json(
-        { message: 'You are already registered for this event' },
-        { status: 409 }
-      )
+    const data = await response.json()
+
+    if (!response.ok) {
+      return NextResponse.json(data, { status: response.status })
     }
 
-    // Create new registration
-    const newRegistration = await Registration.create({
-      eventId,
-      userId: user.id,
-      notes,
-      additionalInfo,
-      status: 'pending'
-    })
-
-    // Populate the response
-    await newRegistration.populate('eventId', 'title date location')
-    await newRegistration.populate('userId', 'firstName lastName email')
-
-    return NextResponse.json({
-      message: 'Registration successful',
-      registration: {
-        ...newRegistration.toObject(),
-        _id: newRegistration._id.toString()
-      }
-    })
-
+    return NextResponse.json(data)
   } catch (error) {
-    console.error('Registration creation error:', error)
+    console.error('Proxy error:', error)
     return NextResponse.json(
       { message: 'Internal server error' },
       { status: 500 }
