@@ -1,33 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import connectDB from '@/lib/mongodb'
-import mongoose from 'mongoose'
 
-// Event Schema
-const eventSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  description: { type: String, required: true },
-  date: { type: Date, required: true },
-  time: { type: String, required: true },
-  location: { type: String, required: true },
-  category: { type: String, required: true },
-  capacity: { type: Number, required: true },
-  barangay: { type: String, required: true },
-  municipality: { type: String, required: true },
-  province: { type: String, required: true },
-  requirements: [{ type: String }],
-  tags: [{ type: String }],
-  imageUrl: { type: String },
-  status: { 
-    type: String, 
-    enum: ['draft', 'published', 'cancelled', 'completed'], 
-    default: 'published' 
-  },
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  registrationDeadline: { type: Date },
-  isActive: { type: Boolean, default: true }
-}, { timestamps: true })
-
-const Event = mongoose.models.Event || mongoose.model('Event', eventSchema)
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://sk-connect-backend-production.up.railway.app'
 
 export async function GET(request: NextRequest) {
   try {
