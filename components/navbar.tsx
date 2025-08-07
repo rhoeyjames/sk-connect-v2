@@ -266,7 +266,7 @@ export default function Navbar() {
                       {user ? (
                         <Button
                           onClick={() => {
-                            handleLogout()
+                            logout()
                             setIsOpen(false)
                           }}
                           variant="ghost"
