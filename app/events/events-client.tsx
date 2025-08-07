@@ -196,6 +196,8 @@ export default function EventsClient() {
         await new Promise(resolve => setTimeout(resolve, 1000 * retryCount))
       }
 
+      console.log("Fetching events from /api/events")
+
       const response = await fetch("/api/events", {
         method: "GET",
         headers: {
@@ -205,11 +207,16 @@ export default function EventsClient() {
         cache: "no-cache",
       })
 
+      console.log("Events response status:", response.status)
+
       if (response.ok) {
         const data = await response.json()
+        console.log("Events data received:", data)
         setEvents(data.events || [])
       } else {
         console.error("Failed to fetch events:", response.status, response.statusText)
+        const errorText = await response.text()
+        console.error("Error response body:", errorText)
         // If it's a server error and we haven't retried too many times, retry
         if (response.status >= 500 && retryCount < 2) {
           return fetchEvents(retryCount + 1)
