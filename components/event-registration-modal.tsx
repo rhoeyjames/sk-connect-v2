@@ -83,11 +83,25 @@ export default function EventRegistrationModal({
     try {
       setLoading(true)
       const token = localStorage.getItem("token")
-      
-      if (!token) {
+      const userData = localStorage.getItem("user")
+
+      if (!token || !userData) {
         toast({
           title: "Authentication Required",
           description: "Please log in to register for events",
+          variant: "destructive",
+        })
+        return
+      }
+
+      // Check barangay eligibility
+      const user = JSON.parse(userData)
+      const isEligible = checkEventEligibility(user, event)
+
+      if (!isEligible.eligible) {
+        toast({
+          title: "Registration Not Allowed",
+          description: isEligible.reason,
           variant: "destructive",
         })
         return
