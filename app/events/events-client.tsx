@@ -805,6 +805,35 @@ export default function EventsClient() {
                       </div>
                     )}
 
+                    {/* Eligibility Badge for Youth */}
+                    {user?.role === "youth" && (
+                      (() => {
+                        const eligibility = checkEventEligibility(user, event)
+                        return (
+                          <div className={`mt-2 pt-2 border-t ${
+                            eligibility.eligible ? 'border-green-200' : 'border-yellow-200'
+                          }`}>
+                            <div className={`flex items-center text-xs px-2 py-1 rounded-full ${
+                              eligibility.eligible
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              <MapPin className="h-3 w-3 mr-1" />
+                              {eligibility.eligible
+                                ? "✓ You can register"
+                                : eligibility.reason
+                              }
+                            </div>
+                            {event.barangay && (
+                              <div className="text-xs text-gray-500 mt-1">
+                                Event for: {event.barangay}, {event.municipality}
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })()
+                    )}
+
                     {/* Show additional admin info */}
                     {(user?.role === "admin" || user?.role === "sk_official") && (
                       <div className="mt-2 pt-2 border-t border-gray-200">
