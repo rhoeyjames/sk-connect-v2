@@ -180,7 +180,7 @@ export default function EventCalendar({ events, onEventClick }: EventCalendarPro
           <div className="grid grid-cols-7 gap-1">
             {calendarDays.map((day, index) => {
               if (day === null) {
-                return <div key={index} className="h-12"></div>
+                return <div key={`empty-${index}`} className="h-12"></div>
               }
 
               const dayEvents = getEventsForDate(day)
@@ -188,16 +188,16 @@ export default function EventCalendar({ events, onEventClick }: EventCalendarPro
 
               return (
                 <div
-                  key={day}
+                  key={`day-${day}`}
                   onClick={() => handleDateClick(day)}
                   className={`
                     h-12 flex items-center justify-center text-sm rounded cursor-pointer relative
-                    ${isToday(day) 
-                      ? 'bg-blue-600 text-white font-bold' 
+                    ${isToday(day)
+                      ? 'bg-blue-600 text-white font-bold'
                       : isSelected(day)
                         ? 'bg-blue-100 text-blue-800 font-medium'
-                        : hasEvents 
-                          ? 'bg-green-50 text-green-800 font-medium hover:bg-green-100' 
+                        : hasEvents
+                          ? 'bg-green-50 text-green-800 font-medium hover:bg-green-100'
                           : 'hover:bg-gray-100'
                     }
                   `}
