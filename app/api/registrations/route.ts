@@ -1,41 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import jwt from 'jsonwebtoken'
-import connectDB from '@/lib/mongodb'
-import mongoose from 'mongoose'
 
-// Registration Schema
-const registrationSchema = new mongoose.Schema({
-  eventId: { type: mongoose.Schema.Types.ObjectId, ref: 'Event', required: true },
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  status: { 
-    type: String, 
-    enum: ['pending', 'approved', 'rejected', 'cancelled'], 
-    default: 'pending' 
-  },
-  registrationDate: { type: Date, default: Date.now },
-  notes: { type: String },
-  additionalInfo: { type: mongoose.Schema.Types.Mixed }
-}, { timestamps: true })
-
-const Registration = mongoose.models.Registration || mongoose.model('Registration', registrationSchema)
-
-// Verify token
-async function verifyToken(request: NextRequest) {
-  try {
-    const authHeader = request.headers.get('authorization')
-    
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return { error: 'No token provided' }
-    }
-
-    const token = authHeader.substring(7)
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-dev-secret') as any
-    
-    return { user: decoded }
-  } catch (error) {
-    return { error: 'Invalid token' }
-  }
-}
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://sk-connect-backend-production.up.railway.app'
 
 export async function GET(request: NextRequest) {
   try {
