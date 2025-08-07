@@ -53,9 +53,48 @@ interface EventRegistrationModalProps {
   onRegistrationSuccess: () => void
 }
 
-export default function EventRegistrationModal({ 
-  isOpen, 
-  onClose, 
+// Eligibility checking function
+function checkEventEligibility(user: any, event: Event) {
+  // Admin and SK officials can always register (for testing/monitoring)
+  if (user.role === 'admin' || user.role === 'sk_official') {
+    return { eligible: true, reason: '' }
+  }
+
+  // Check barangay match (case insensitive)
+  const userBarangay = user.barangay?.toLowerCase().trim()
+  const eventBarangay = event.barangay?.toLowerCase().trim()
+
+  if (!userBarangay) {
+    return {
+      eligible: false,
+      reason: 'Your profile is missing barangay information. Please update your profile first.'
+    }
+  }
+
+  if (userBarangay !== eventBarangay) {
+    return {
+      eligible: false,
+      reason: `This event is only for residents of ${event.barangay}. Your registered barangay is ${user.barangay}.`
+    }
+  }
+
+  // Check municipality for extra validation (optional)
+  const userMunicipality = user.municipality?.toLowerCase().trim()
+  const eventMunicipality = event.municipality?.toLowerCase().trim()
+
+  if (userMunicipality && eventMunicipality && userMunicipality !== eventMunicipality) {
+    return {
+      eligible: false,
+      reason: `This event is only for residents of ${event.municipality}. Your registered municipality is ${user.municipality}.`
+    }
+  }
+
+  return { eligible: true, reason: '' }
+}
+
+export default function EventRegistrationModal({
+  isOpen,
+  onClose,
   event,
   onRegistrationSuccess
 }: EventRegistrationModalProps) {
