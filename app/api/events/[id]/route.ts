@@ -1,25 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const BACKEND_URL = 'http://localhost:5000'
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://sk-connect-backend-production.up.railway.app'
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const response = await fetch(`${BACKEND_URL}/api/events/${params.id}`)
+    const authHeader = request.headers.get('authorization')
+    const { id } = params
     
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      return NextResponse.json(errorData, { status: response.status })
-    }
+    const response = await fetch(`${BACKEND_URL}/api/events/${id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(authHeader && { Authorization: authHeader }),
+      },
+    })
 
     const data = await response.json()
+
+    if (!response.ok) {
+      return NextResponse.json(data, { status: response.status })
+    }
+
     return NextResponse.json(data)
   } catch (error) {
-    console.error('Event detail proxy error:', error)
+    console.error('Proxy error:', error)
     return NextResponse.json(
-      { message: 'Failed to fetch event details' },
+      { message: 'Internal server error' },
       { status: 500 }
     )
   }
@@ -30,29 +39,30 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const authorization = request.headers.get('authorization')
-    const formData = await request.formData()
-
-    const response = await fetch(`${BACKEND_URL}/api/events/${params.id}`, {
+    const body = await request.json()
+    const authHeader = request.headers.get('authorization')
+    const { id } = params
+    
+    const response = await fetch(`${BACKEND_URL}/api/events/${id}`, {
       method: 'PUT',
       headers: {
-        ...(authorization && { 'Authorization': authorization }),
-        // Don't set Content-Type for FormData, let the browser set it with boundary
+        'Content-Type': 'application/json',
+        ...(authHeader && { Authorization: authHeader }),
       },
-      body: formData,
+      body: JSON.stringify(body),
     })
 
+    const data = await response.json()
+
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      return NextResponse.json(errorData, { status: response.status })
+      return NextResponse.json(data, { status: response.status })
     }
 
-    const data = await response.json()
     return NextResponse.json(data)
   } catch (error) {
-    console.error('Event update proxy error:', error)
+    console.error('Proxy error:', error)
     return NextResponse.json(
-      { message: 'Failed to update event' },
+      { message: 'Internal server error' },
       { status: 500 }
     )
   }
@@ -63,27 +73,28 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const authorization = request.headers.get('authorization')
+    const authHeader = request.headers.get('authorization')
+    const { id } = params
     
-    const response = await fetch(`${BACKEND_URL}/api/events/${params.id}`, {
+    const response = await fetch(`${BACKEND_URL}/api/events/${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        ...(authorization && { 'Authorization': authorization }),
+        ...(authHeader && { Authorization: authHeader }),
       },
     })
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      return NextResponse.json(errorData, { status: response.status })
-    }
 
     const data = await response.json()
+
+    if (!response.ok) {
+      return NextResponse.json(data, { status: response.status })
+    }
+
     return NextResponse.json(data)
   } catch (error) {
-    console.error('Event delete proxy error:', error)
+    console.error('Proxy error:', error)
     return NextResponse.json(
-      { message: 'Failed to delete event' },
+      { message: 'Internal server error' },
       { status: 500 }
     )
   }
