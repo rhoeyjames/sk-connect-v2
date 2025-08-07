@@ -93,16 +93,42 @@ export default function EventDetailClient({ eventId }: { eventId: string }) {
   const fetchEventDetails = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/events/${eventId}`)
-      
+      const token = localStorage.getItem("token")
+
+      console.log(`Fetching event details for ID: ${eventId}`)
+
+      const response = await fetch(`/api/events/${eventId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` }),
+        },
+        cache: 'no-cache',
+      })
+
+      console.log(`Event detail response status: ${response.status}`)
+
       if (response.ok) {
         const data = await response.json()
-        setEvent(data.event)
+        console.log('Event data received:', data)
+        setEvent(data.event || data)
       } else {
-        console.error("Failed to fetch event details:", response.statusText)
+        console.error("Failed to fetch event details:", response.status, response.statusText)
+
+        let errorMessage = "Failed to load event details"
+        try {
+          const errorData = await response.json()
+          errorMessage = errorData.message || errorMessage
+          console.error("Error response data:", errorData)
+        } catch (e) {
+          const text = await response.text()
+          console.error("Error response text:", text)
+          errorMessage = text || `HTTP ${response.status}: ${response.statusText}`
+        }
+
         toast({
           title: "Error",
-          description: "Failed to load event details",
+          description: errorMessage,
           variant: "destructive",
         })
       }
@@ -110,7 +136,7 @@ export default function EventDetailClient({ eventId }: { eventId: string }) {
       console.error("Error fetching event details:", error)
       toast({
         title: "Error",
-        description: "Failed to connect to server",
+        description: error instanceof Error ? error.message : "Failed to connect to server",
         variant: "destructive",
       })
     } finally {
