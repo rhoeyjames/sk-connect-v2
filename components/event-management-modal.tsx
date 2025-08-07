@@ -135,43 +135,45 @@ export default function EventManagementModal({
         return
       }
 
-      // Prepare form data for multipart/form-data
-      const updateData = new FormData()
-      updateData.append("title", formData.title)
-      updateData.append("description", formData.description)
-      updateData.append("date", formData.date)
-      updateData.append("time", formData.time)
-      updateData.append("location", formData.location)
-      updateData.append("category", formData.category)
-      updateData.append("barangay", formData.barangay)
-      updateData.append("municipality", formData.municipality)
-      updateData.append("province", formData.province)
-      updateData.append("status", formData.status)
-      updateData.append("isRegistrationOpen", formData.isRegistrationOpen.toString())
-      
+      // Prepare JSON data for update
+      const updateData: any = {
+        title: formData.title,
+        description: formData.description,
+        date: formData.date,
+        time: formData.time,
+        location: formData.location,
+        category: formData.category,
+        barangay: formData.barangay,
+        municipality: formData.municipality,
+        province: formData.province,
+        status: formData.status,
+        isRegistrationOpen: formData.isRegistrationOpen,
+      }
+
       if (formData.maxParticipants) {
-        updateData.append("maxParticipants", formData.maxParticipants)
+        updateData.maxParticipants = parseInt(formData.maxParticipants) || 50
       }
       if (formData.registrationDeadline) {
-        updateData.append("registrationDeadline", formData.registrationDeadline)
+        updateData.registrationDeadline = formData.registrationDeadline
       }
       if (formData.requirements) {
-        // Split requirements by comma and send as JSON string
-        const reqArray = formData.requirements.split(",").map(r => r.trim()).filter(r => r)
-        updateData.append("requirements", JSON.stringify(reqArray))
+        // Split requirements by comma
+        updateData.requirements = formData.requirements.split(",").map(r => r.trim()).filter(r => r)
       }
       if (formData.tags) {
-        // Split tags by comma and send as JSON string
-        const tagArray = formData.tags.split(",").map(t => t.trim()).filter(t => t)
-        updateData.append("tags", JSON.stringify(tagArray))
+        // Split tags by comma
+        updateData.tags = formData.tags.split(",").map(t => t.trim()).filter(t => t)
       }
+
+      console.log('Updating event with data:', updateData)
 
       const response = await fetch(`/api/events/${event._id}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
-        body: updateData,
+        body: JSON.stringify(updateData),
       })
 
       if (!response.ok) {
