@@ -894,12 +894,19 @@ export default function EventsClient() {
                       </Button>
                     </div>
                   ) : (
-                    <Button
-                      className="w-full mt-4"
-                      onClick={() => handleRegisterForEvent(event)}
-                    >
-                      Register for Event
-                    </Button>
+                    (() => {
+                      const eligibility = checkEventEligibility(user, event)
+                      return (
+                        <Button
+                          className="w-full mt-4"
+                          onClick={() => handleRegisterForEvent(event)}
+                          disabled={!eligibility.eligible}
+                          variant={eligibility.eligible ? "default" : "outline"}
+                        >
+                          {eligibility.eligible ? "Register for Event" : "Registration Restricted"}
+                        </Button>
+                      )
+                    })()
                   )}
                 </CardContent>
               </Card>
