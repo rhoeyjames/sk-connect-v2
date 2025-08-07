@@ -177,8 +177,20 @@ export default function EventManagementModal({
       })
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.message || 'Failed to update event')
+        console.error('Update response status:', response.status)
+        console.error('Update response statusText:', response.statusText)
+
+        let errorData = {}
+        try {
+          errorData = await response.json()
+          console.error('Update error data:', errorData)
+        } catch (e) {
+          const text = await response.text()
+          console.error('Update error text:', text)
+          errorData = { message: text || `HTTP ${response.status}: ${response.statusText}` }
+        }
+
+        throw new Error((errorData as any).message || 'Failed to update event')
       }
 
       toast({
