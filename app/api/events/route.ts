@@ -61,6 +61,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const authHeader = request.headers.get('authorization')
 
+    console.log(`Creating event at: ${BACKEND_URL}/api/events`)
+    console.log('Event data:', JSON.stringify(body, null, 2))
+
     const response = await fetch(`${BACKEND_URL}/api/events`, {
       method: 'POST',
       headers: {
@@ -70,17 +73,40 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(body),
     })
 
-    const data = await response.json()
+    console.log(`Backend response status: ${response.status}`)
+
+    // Handle non-JSON responses
+    let data
+    const contentType = response.headers.get('content-type')
+    if (contentType && contentType.includes('application/json')) {
+      try {
+        data = await response.json()
+      } catch (parseError) {
+        console.error('Failed to parse JSON response:', parseError)
+        return NextResponse.json(
+          { message: 'Invalid response from backend' },
+          { status: 502 }
+        )
+      }
+    } else {
+      const text = await response.text()
+      console.error('Non-JSON response from backend:', text)
+      return NextResponse.json(
+        { message: 'Backend returned non-JSON response', details: text },
+        { status: 502 }
+      )
+    }
 
     if (!response.ok) {
+      console.error('Backend error response:', data)
       return NextResponse.json(data, { status: response.status })
     }
 
     return NextResponse.json(data)
   } catch (error) {
-    console.error('Proxy error:', error)
+    console.error('Event creation error:', error)
     return NextResponse.json(
-      { message: 'Internal server error' },
+      { message: 'Failed to connect to backend', error: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }
