@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const BACKEND_URL = 'http://localhost:5000'
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://sk-connect-backend-production.up.railway.app'
 
 export async function PUT(
   request: NextRequest,
@@ -8,13 +8,14 @@ export async function PUT(
 ) {
   try {
     const body = await request.json()
-    const token = request.headers.get('Authorization')
+    const authHeader = request.headers.get('authorization')
+    const { id } = params
     
-    const response = await fetch(`${BACKEND_URL}/api/registrations/${params.id}/status`, {
+    const response = await fetch(`${BACKEND_URL}/api/registrations/${id}/status`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        ...(token && { Authorization: token }),
+        ...(authHeader && { Authorization: authHeader }),
       },
       body: JSON.stringify(body),
     })
@@ -27,7 +28,7 @@ export async function PUT(
 
     return NextResponse.json(data)
   } catch (error) {
-    console.error('Registration status update proxy error:', error)
+    console.error('Proxy error:', error)
     return NextResponse.json(
       { message: 'Internal server error' },
       { status: 500 }
