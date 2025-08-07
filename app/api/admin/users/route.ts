@@ -1,52 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import jwt from 'jsonwebtoken'
-import connectDB from '@/lib/mongodb'
-import mongoose from 'mongoose'
 
-// User Schema
-const userSchema = new mongoose.Schema({
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  role: { type: String, enum: ['admin', 'sk_official', 'youth'], default: 'youth' },
-  age: { type: Number },
-  barangay: { type: String, required: true },
-  municipality: { type: String, required: true },
-  province: { type: String, required: true },
-  phoneNumber: { type: String },
-  dateOfBirth: { type: Date },
-  interests: [{ type: String }],
-  isActive: { type: Boolean, default: true },
-}, { timestamps: true })
-
-const User = mongoose.models.User || mongoose.model('User', userSchema)
-
-// Verify admin token
-async function verifyAdminToken(request: NextRequest) {
-  try {
-    const authHeader = request.headers.get('authorization')
-    
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return { error: 'No token provided' }
-    }
-
-    const token = authHeader.substring(7)
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-dev-secret') as any
-    
-    // Connect to DB to get full user info
-    await connectDB()
-    const user = await User.findById(decoded.id)
-    
-    if (!user || user.role !== 'admin') {
-      return { error: 'Admin access required' }
-    }
-    
-    return { user: decoded }
-  } catch (error) {
-    return { error: 'Invalid token' }
-  }
-}
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://sk-connect-backend-production.up.railway.app'
 
 export async function GET(request: NextRequest) {
   try {
