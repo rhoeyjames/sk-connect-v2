@@ -1,116 +1,61 @@
 import { NextRequest, NextResponse } from 'next/server'
-import jwt from 'jsonwebtoken'
 
-// Mock user data - in production this would come from database
-const MOCK_USERS = [
-  {
-    id: '1',
-    email: 'admin@skconnect.com',
-    firstName: 'Admin',
-    lastName: 'User',
-    role: 'admin',
-    barangay: 'Sample Barangay',
-    municipality: 'Sample Municipality',
-    province: 'Sample Province'
-  },
-  {
-    id: '2',
-    email: 'sk@skconnect.com',
-    firstName: 'SK',
-    lastName: 'Official',
-    role: 'sk_official',
-    barangay: 'Sample Barangay',
-    municipality: 'Sample Municipality',
-    province: 'Sample Province'
-  },
-  {
-    id: '3',
-    email: 'youth@skconnect.com',
-    firstName: 'Youth',
-    lastName: 'Member',
-    role: 'youth',
-    age: 18,
-    barangay: 'Sample Barangay',
-    municipality: 'Sample Municipality',
-    province: 'Sample Province'
-  }
-]
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://sk-connect-backend-production.up.railway.app'
 
 export async function GET(request: NextRequest) {
   try {
-    // Get token from Authorization header
     const authHeader = request.headers.get('authorization')
     
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { message: 'No token provided' },
-        { status: 401 }
-      )
-    }
-
-    const token = authHeader.substring(7)
-    
-    // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-dev-secret') as any
-    
-    // Find user
-    const user = MOCK_USERS.find(u => u.id === decoded.id)
-    
-    if (!user) {
-      return NextResponse.json(
-        { message: 'User not found' },
-        { status: 404 }
-      )
-    }
-
-    return NextResponse.json({
-      user
+    const response = await fetch(`${BACKEND_URL}/api/auth/profile`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(authHeader && { Authorization: authHeader }),
+      },
     })
 
+    const data = await response.json()
+
+    if (!response.ok) {
+      return NextResponse.json(data, { status: response.status })
+    }
+
+    return NextResponse.json(data)
   } catch (error) {
-    console.error('Profile error:', error)
+    console.error('Proxy error:', error)
     return NextResponse.json(
-      { message: 'Invalid token' },
-      { status: 401 }
+      { message: 'Internal server error' },
+      { status: 500 }
     )
   }
 }
 
 export async function PUT(request: NextRequest) {
   try {
-    // Get token from Authorization header
+    const body = await request.json()
     const authHeader = request.headers.get('authorization')
     
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { message: 'No token provided' },
-        { status: 401 }
-      )
-    }
-
-    const token = authHeader.substring(7)
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-dev-secret') as any
-    
-    const updateData = await request.json()
-    
-    // In production, update user in database
-    // For demo, we'll just return the updated data
-    
-    return NextResponse.json({
-      message: 'Profile updated successfully',
-      user: {
-        id: decoded.id,
-        email: decoded.email,
-        role: decoded.role,
-        ...updateData
-      }
+    const response = await fetch(`${BACKEND_URL}/api/auth/profile`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(authHeader && { Authorization: authHeader }),
+      },
+      body: JSON.stringify(body),
     })
 
+    const data = await response.json()
+
+    if (!response.ok) {
+      return NextResponse.json(data, { status: response.status })
+    }
+
+    return NextResponse.json(data)
   } catch (error) {
-    console.error('Profile update error:', error)
+    console.error('Proxy error:', error)
     return NextResponse.json(
-      { message: 'Invalid token' },
-      { status: 401 }
+      { message: 'Internal server error' },
+      { status: 500 }
     )
   }
 }
