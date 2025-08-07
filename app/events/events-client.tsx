@@ -715,7 +715,7 @@ export default function EventsClient() {
             {eventsLoading ? (
               // Loading skeleton
               Array.from({ length: 3 }).map((_, index) => (
-                <Card key={index}>
+                <Card key={`skeleton-${index}`}>
                   <CardHeader>
                     <div className="animate-pulse">
                       <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
