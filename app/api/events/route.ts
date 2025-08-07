@@ -33,30 +33,27 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    await connectDB()
+    const body = await request.json()
+    const authHeader = request.headers.get('authorization')
 
-    // Get event data from request
-    const eventData = await request.json()
-
-    // For demo purposes, create event without authentication
-    // In production, you'd verify the user token here
-    
-    const newEvent = await Event.create({
-      ...eventData,
-      isActive: true,
-      status: 'published'
+    const response = await fetch(`${BACKEND_URL}/api/events`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(authHeader && { Authorization: authHeader }),
+      },
+      body: JSON.stringify(body),
     })
 
-    return NextResponse.json({
-      message: 'Event created successfully',
-      event: {
-        ...newEvent.toObject(),
-        _id: newEvent._id.toString()
-      }
-    })
+    const data = await response.json()
 
+    if (!response.ok) {
+      return NextResponse.json(data, { status: response.status })
+    }
+
+    return NextResponse.json(data)
   } catch (error) {
-    console.error('Event creation error:', error)
+    console.error('Proxy error:', error)
     return NextResponse.json(
       { message: 'Internal server error' },
       { status: 500 }
