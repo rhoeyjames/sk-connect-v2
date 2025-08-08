@@ -98,24 +98,6 @@ export default function LoginForm() {
           </p>
         </div>
 
-        {/* Welcome Information */}
-        <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h3 className="text-sm font-medium text-blue-800 mb-2">Welcome to SKConnect</h3>
-          <div className="text-sm text-blue-700 space-y-1">
-            <div className="flex items-center">
-              <Users className="h-3 w-3 mr-2 text-green-600" />
-              <span><strong>Youth Members:</strong> Access events and register for activities</span>
-            </div>
-            <div className="flex items-center">
-              <UserCheck className="h-3 w-3 mr-2 text-blue-600" />
-              <span><strong>SK Officials:</strong> Manage events and view registrations</span>
-            </div>
-            <div className="flex items-center">
-              <Shield className="h-3 w-3 mr-2 text-red-600" />
-              <span><strong>Administrators:</strong> Full system access and management</span>
-            </div>
-          </div>
-        </div>
 
         <Card>
           <CardHeader>
