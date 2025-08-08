@@ -20,7 +20,7 @@ interface User {
 
 interface AuthContextType {
   user: User | null
-  login: (email: string, password: string, role: string) => Promise<void>
+  login: (email: string, password: string) => Promise<void>
   register: (userData: RegisterData) => Promise<void>
   logout: () => void
   loading: boolean
@@ -86,21 +86,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initializeAuth()
   }, [])
 
-  const login = async (email: string, password: string, selectedRole: string) => {
+  const login = async (email: string, password: string) => {
     try {
-      // Login with just email and password (backend doesn't validate role yet)
+      // Login with email and password - backend returns user with their actual role
       const data = await apiClient.login(email, password)
-
-      // Frontend role validation: Check if selected role matches actual user role
-      if (selectedRole !== data.user.role) {
-        throw new Error(`Access denied. This account is registered as '${data.user.role}', but you selected '${selectedRole}'. Please select the correct role.`)
-      }
 
       localStorage.setItem("token", data.token)
       localStorage.setItem("user", JSON.stringify(data.user))
       setUser(data.user)
 
-      // Redirect based on role
+      // Redirect based on actual user role from backend
       if (data.user.role === "admin") {
         router.push("/admin")
       } else {

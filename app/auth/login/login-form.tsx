@@ -17,7 +17,6 @@ export default function LoginForm() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    role: "youth", // Default role selection
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
@@ -32,13 +31,6 @@ export default function LoginForm() {
     setError("") // Clear error when user types
   }
 
-  const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFormData((prev) => ({
-      ...prev,
-      role: e.target.value,
-    }))
-    setError("") // Clear error when role changes
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -53,8 +45,8 @@ export default function LoginForm() {
     }
 
     try {
-      // Use auth context login method
-      await login(formData.email, formData.password, formData.role)
+      // Use auth context login method - role is auto-detected from backend
+      await login(formData.email, formData.password)
 
       toast({
         title: "Login Successful!",
@@ -106,29 +98,22 @@ export default function LoginForm() {
           </p>
         </div>
 
-        {/* Role Information Banner */}
+        {/* Welcome Information */}
         <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h3 className="text-sm font-medium text-blue-800 mb-2">🔐 Role-Based Login Security</h3>
-          <div className="text-sm text-blue-700 space-y-2">
-            <p className="font-medium">You must select the exact role you registered with:</p>
-            <div className="space-y-1">
-              <div className="flex items-center">
-                <Users className="h-3 w-3 mr-2 text-green-600" />
-                <span><strong>Youth Member:</strong> Access events, register for activities</span>
-              </div>
-              <div className="flex items-center">
-                <UserCheck className="h-3 w-3 mr-2 text-blue-600" />
-                <span><strong>SK Official:</strong> Manage events, view registrations</span>
-              </div>
-              <div className="flex items-center">
-                <Shield className="h-3 w-3 mr-2 text-red-600" />
-                <span><strong>Administrator:</strong> Full system access and management</span>
-              </div>
+          <h3 className="text-sm font-medium text-blue-800 mb-2">Welcome to SKConnect</h3>
+          <div className="text-sm text-blue-700 space-y-1">
+            <div className="flex items-center">
+              <Users className="h-3 w-3 mr-2 text-green-600" />
+              <span><strong>Youth Members:</strong> Access events and register for activities</span>
             </div>
-            <p className="text-xs bg-blue-100 p-2 rounded mt-2">
-              ⚠️ <strong>Security Note:</strong> You cannot login with a different role than your account type.
-              If unsure of your role, contact your administrator.
-            </p>
+            <div className="flex items-center">
+              <UserCheck className="h-3 w-3 mr-2 text-blue-600" />
+              <span><strong>SK Officials:</strong> Manage events and view registrations</span>
+            </div>
+            <div className="flex items-center">
+              <Shield className="h-3 w-3 mr-2 text-red-600" />
+              <span><strong>Administrators:</strong> Full system access and management</span>
+            </div>
           </div>
         </div>
 
@@ -178,38 +163,6 @@ export default function LoginForm() {
                       className="pl-10"
                     />
                   </div>
-                </div>
-                <div>
-                  <Label htmlFor="role">Login As</Label>
-                  <Select value={formData.role} onValueChange={(value) => setFormData(prev => ({ ...prev, role: value }))}>
-                    <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="Select your role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="youth">
-                        <div className="flex items-center">
-                          <Users className="h-4 w-4 text-green-600" />
-                          <span className="ml-2">Youth Member</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="sk_official">
-                        <div className="flex items-center">
-                          <UserCheck className="h-4 w-4 text-blue-600" />
-                          <span className="ml-2">SK Official</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="admin">
-                        <div className="flex items-center">
-                          <Shield className="h-4 w-4 text-red-600" />
-                          <span className="ml-2">Administrator</span>
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-gray-500 mt-1">
-                    <strong>Important:</strong> Select the exact role you registered with.
-                    You cannot login with a different role than your account type.
-                  </p>
                 </div>
               </div>
 
