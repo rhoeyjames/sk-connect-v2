@@ -64,7 +64,25 @@ export default function LoginForm() {
       // The AuthContext will handle redirects automatically
     } catch (error: any) {
       console.error('Login error:', error)
-      setError(error.message || "Login failed. Please check your credentials and try again.")
+
+      // Provide more helpful error messages for role mismatch
+      let errorMessage = error.message || "Login failed. Please check your credentials and try again."
+
+      if (error.message && error.message.includes('Access denied') && error.message.includes('registered as')) {
+        // Extract the actual role from the error message
+        const match = error.message.match(/registered as '([^']+)'/)
+        if (match) {
+          const actualRole = match[1]
+          const roleNames = {
+            'admin': 'Administrator',
+            'sk_official': 'SK Official',
+            'youth': 'Youth Member'
+          }
+          errorMessage = `Your account is registered as "${roleNames[actualRole] || actualRole}". Please select the correct role to login.`
+        }
+      }
+
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -181,7 +199,10 @@ export default function LoginForm() {
                       </SelectItem>
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-gray-500 mt-1">Select the role you registered with</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    <strong>Important:</strong> Select the exact role you registered with.
+                    You cannot login with a different role than your account type.
+                  </p>
                 </div>
               </div>
 
