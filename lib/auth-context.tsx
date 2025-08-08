@@ -88,13 +88,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
+      // Login with email and password - backend returns user with their actual role
       const data = await apiClient.login(email, password)
 
       localStorage.setItem("token", data.token)
       localStorage.setItem("user", JSON.stringify(data.user))
       setUser(data.user)
 
-      // Redirect based on role
+      // Redirect based on actual user role from backend
       if (data.user.role === "admin") {
         router.push("/admin")
       } else {

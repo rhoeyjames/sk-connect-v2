@@ -17,7 +17,6 @@ export default function LoginForm() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    role: "youth", // Default role selection
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
@@ -32,13 +31,6 @@ export default function LoginForm() {
     setError("") // Clear error when user types
   }
 
-  const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFormData((prev) => ({
-      ...prev,
-      role: e.target.value,
-    }))
-    setError("") // Clear error when role changes
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -53,7 +45,7 @@ export default function LoginForm() {
     }
 
     try {
-      // Use auth context login method
+      // Use auth context login method - role is auto-detected from backend
       await login(formData.email, formData.password)
 
       toast({
@@ -64,7 +56,25 @@ export default function LoginForm() {
       // The AuthContext will handle redirects automatically
     } catch (error: any) {
       console.error('Login error:', error)
-      setError(error.message || "Login failed. Please check your credentials and try again.")
+
+      // Provide more helpful error messages for role mismatch
+      let errorMessage = error.message || "Login failed. Please check your credentials and try again."
+
+      if (error.message && error.message.includes('Access denied') && error.message.includes('registered as')) {
+        // Extract the actual role from the error message
+        const match = error.message.match(/registered as '([^']+)'/)
+        if (match) {
+          const actualRole = match[1]
+          const roleNames = {
+            'admin': 'Administrator',
+            'sk_official': 'SK Official',
+            'youth': 'Youth Member'
+          }
+          errorMessage = `Your account is registered as "${roleNames[actualRole] || actualRole}". Please select the correct role to login.`
+        }
+      }
+
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -74,9 +84,11 @@ export default function LoginForm() {
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md mx-auto">
         <div className="text-center mb-8">
-          <div className="mx-auto h-12 w-12 bg-blue-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-lg">SK</span>
-          </div>
+          <img
+            src="https://cdn.builder.io/api/v1/image/assets%2Ffabc43030bfc4ff6a60efabdca8137fc%2Fd9f1846c5b2646e5a193351263ff9dd2?format=webp&width=800"
+            alt="SKConnect Logo"
+            className="mx-auto h-12 w-12 rounded-lg"
+          />
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">Sign in to SKConnect</h2>
           <p className="mt-2 text-sm text-gray-600">
             Don't have an account?{" "}
@@ -86,24 +98,6 @@ export default function LoginForm() {
           </p>
         </div>
 
-        {/* Role Information Banner */}
-        <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h3 className="text-sm font-medium text-blue-800 mb-2">Role Access Information:</h3>
-          <div className="text-sm text-blue-700 space-y-1">
-            <div className="flex items-center">
-              <Users className="h-3 w-3 mr-2 text-green-600" />
-              <span><strong>Youth Member:</strong> Access events, register for activities</span>
-            </div>
-            <div className="flex items-center">
-              <UserCheck className="h-3 w-3 mr-2 text-blue-600" />
-              <span><strong>SK Official:</strong> Manage events, view registrations</span>
-            </div>
-            <div className="flex items-center">
-              <Shield className="h-3 w-3 mr-2 text-red-600" />
-              <span><strong>Administrator:</strong> Full system access and management</span>
-            </div>
-          </div>
-        </div>
 
         <Card>
           <CardHeader>
@@ -151,35 +145,6 @@ export default function LoginForm() {
                       className="pl-10"
                     />
                   </div>
-                </div>
-                <div>
-                  <Label htmlFor="role">Login As</Label>
-                  <Select value={formData.role} onValueChange={(value) => setFormData(prev => ({ ...prev, role: value }))}>
-                    <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="Select your role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="youth">
-                        <div className="flex items-center">
-                          <Users className="h-4 w-4 text-green-600" />
-                          <span className="ml-2">Youth Member</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="sk_official">
-                        <div className="flex items-center">
-                          <UserCheck className="h-4 w-4 text-blue-600" />
-                          <span className="ml-2">SK Official</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="admin">
-                        <div className="flex items-center">
-                          <Shield className="h-4 w-4 text-red-600" />
-                          <span className="ml-2">Administrator</span>
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-gray-500 mt-1">Select the role you registered with</p>
                 </div>
               </div>
 
