@@ -86,9 +86,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initializeAuth()
   }, [])
 
-  const login = async (email: string, password: string, role: string) => {
+  const login = async (email: string, password: string, selectedRole: string) => {
     try {
-      const data = await apiClient.login(email, password, role)
+      // Login with just email and password (backend doesn't validate role yet)
+      const data = await apiClient.login(email, password)
+
+      // Frontend role validation: Check if selected role matches actual user role
+      if (selectedRole !== data.user.role) {
+        throw new Error(`Access denied. This account is registered as '${data.user.role}', but you selected '${selectedRole}'. Please select the correct role.`)
+      }
 
       localStorage.setItem("token", data.token)
       localStorage.setItem("user", JSON.stringify(data.user))

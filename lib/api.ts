@@ -73,10 +73,10 @@ class ApiClient {
   }
 
   // Auth endpoints
-  async login(email: string, password: string, role: string) {
+  async login(email: string, password: string) {
     return this.request('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password, selectedRole: role }),
+      body: JSON.stringify({ email, password }),
     })
   }
 
