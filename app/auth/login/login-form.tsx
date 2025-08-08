@@ -54,7 +54,7 @@ export default function LoginForm() {
 
     try {
       // Use auth context login method
-      await login(formData.email, formData.password)
+      await login(formData.email, formData.password, formData.role)
 
       toast({
         title: "Login Successful!",

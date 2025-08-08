@@ -92,7 +92,7 @@ router.post("/register", async (req, res) => {
 // Login
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body
+    const { email, password, selectedRole } = req.body
 
     // Find user by email
     const user = await User.findOne({ email })
@@ -109,6 +109,13 @@ router.post("/login", async (req, res) => {
     const isPasswordValid = await user.comparePassword(password)
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid email or password" })
+    }
+
+    // Validate selected role matches user's actual role
+    if (selectedRole && selectedRole !== user.role) {
+      return res.status(401).json({
+        message: `Access denied. This account is registered as '${user.role}', but you selected '${selectedRole}'. Please select the correct role.`
+      })
     }
 
     // Generate JWT token
