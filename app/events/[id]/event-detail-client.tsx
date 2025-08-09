@@ -239,19 +239,21 @@ export default function EventDetailClient({ eventId }: { eventId: string }) {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <Link href="/events">
             <Button variant="outline">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Events
+              <span className="hidden sm:inline">Back to Events</span>
+              <span className="sm:hidden">Back</span>
             </Button>
           </Link>
-          
+
           {canEdit && (
             <div className="flex gap-2">
               <Button variant="outline" onClick={handleViewParticipants}>
                 <Users className="h-4 w-4 mr-2" />
-                View Participants
+                <span className="hidden sm:inline">View Participants</span>
+                <span className="sm:hidden">Participants</span>
               </Button>
             </div>
           )}
@@ -390,20 +392,23 @@ export default function EventDetailClient({ eventId }: { eventId: string }) {
             {/* Action Buttons */}
             <div className="mt-8 pt-6 border-t">
               {isAdmin ? (
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-4">
                   <Button onClick={handleManageEvent} className="flex-1">
                     <Settings className="h-4 w-4 mr-2" />
-                    Manage Event
+                    <span className="hidden sm:inline">Manage Event</span>
+                    <span className="sm:hidden">Manage</span>
                   </Button>
                   <Button variant="outline" onClick={handleViewParticipants} className="flex-1">
                     <Users className="h-4 w-4 mr-2" />
-                    View Participants
+                    <span className="hidden sm:inline">View Participants</span>
+                    <span className="sm:hidden">Participants</span>
                   </Button>
                 </div>
               ) : (
                 <Button onClick={handleRegisterEvent} className="w-full">
                   <UserPlus className="h-4 w-4 mr-2" />
-                  Register for Event
+                  <span className="hidden sm:inline">Register for Event</span>
+                  <span className="sm:hidden">Register</span>
                 </Button>
               )}
             </div>

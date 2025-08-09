@@ -1,7 +1,9 @@
 const express = require("express")
 const jwt = require("jsonwebtoken")
+const crypto = require("crypto")
 const User = require("../models/User")
 const { auth } = require("../middleware/auth")
+const emailService = require("../services/emailService")
 
 const router = express.Router()
 
@@ -226,6 +228,149 @@ router.put("/change-password", auth, async (req, res) => {
     res.status(400).json({
       message: "Failed to change password",
       error: error.message,
+    })
+  }
+})
+
+// Forgot password - Send reset email
+router.post("/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" })
+    }
+
+    // Find user by email
+    const user = await User.findOne({ email: email.toLowerCase() })
+    if (!user) {
+      // Return success even if user doesn't exist (security practice)
+      return res.json({
+        message: "If an account with that email exists, we've sent a password reset link."
+      })
+    }
+
+    // Check if user is active
+    if (!user.isActive) {
+      return res.status(400).json({ message: "Account is deactivated" })
+    }
+
+    // Generate reset token
+    const resetToken = user.generatePasswordResetToken()
+    await user.save()
+
+    // Send reset email
+    const emailResult = await emailService.sendPasswordResetEmail(
+      user.email,
+      user.firstName,
+      resetToken
+    )
+
+    if (!emailResult.success) {
+      console.error("Failed to send reset email:", emailResult.error)
+      return res.status(500).json({
+        message: "Failed to send reset email. Please try again later."
+      })
+    }
+
+    // Log for development
+    if (process.env.NODE_ENV !== 'production' && emailResult.previewUrl) {
+      console.log(`📧 Password reset email preview: ${emailResult.previewUrl}`)
+    }
+
+    res.json({
+      message: "If an account with that email exists, we've sent a password reset link.",
+      ...(process.env.NODE_ENV !== 'production' && emailResult.previewUrl && {
+        previewUrl: emailResult.previewUrl
+      })
+    })
+
+  } catch (error) {
+    console.error("Forgot password error:", error)
+    res.status(500).json({
+      message: "Internal server error. Please try again later.",
+      error: process.env.NODE_ENV !== 'production' ? error.message : undefined
+    })
+  }
+})
+
+// Reset password with token
+router.post("/reset-password", async (req, res) => {
+  try {
+    const { token, password } = req.body
+
+    if (!token || !password) {
+      return res.status(400).json({ message: "Token and new password are required" })
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters long" })
+    }
+
+    // Hash the token to find user
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex')
+
+    // Find user with valid reset token
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: Date.now() }
+    })
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired reset token" })
+    }
+
+    // Update password and clear reset token
+    user.password = password
+    user.clearResetToken()
+    await user.save()
+
+    res.json({ message: "Password reset successful. You can now log in with your new password." })
+
+  } catch (error) {
+    console.error("Reset password error:", error)
+    res.status(500).json({
+      message: "Failed to reset password. Please try again.",
+      error: process.env.NODE_ENV !== 'production' ? error.message : undefined
+    })
+  }
+})
+
+// Verify reset token (optional - for frontend to check if token is valid)
+router.get("/verify-reset-token/:token", async (req, res) => {
+  try {
+    const { token } = req.params
+
+    if (!token) {
+      return res.status(400).json({ message: "Token is required" })
+    }
+
+    // Hash the token to find user
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex')
+
+    // Find user with valid reset token
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: Date.now() }
+    })
+
+    if (!user) {
+      return res.status(400).json({
+        valid: false,
+        message: "Invalid or expired reset token"
+      })
+    }
+
+    res.json({
+      valid: true,
+      email: user.email.replace(/(.{2})(.*)(@.*)/, "$1***$3") // Partially hide email
+    })
+
+  } catch (error) {
+    console.error("Verify reset token error:", error)
+    res.status(500).json({
+      valid: false,
+      message: "Failed to verify token"
     })
   }
 })

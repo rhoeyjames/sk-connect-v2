@@ -354,7 +354,7 @@ export default function EventsClient() {
         {/* Welcome Section */}
         <div className="mb-8">
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <div className="flex items-center space-x-4">
                 <Avatar className="h-16 w-16">
                   <AvatarImage src="/placeholder-user.jpg" alt={user.firstName} />
@@ -384,10 +384,13 @@ export default function EventsClient() {
               </div>
               {(user.role === "admin" || user.role === "sk_official") && (
                 <>
-                  <Button onClick={() => setCreateEventOpen(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create Event
-                  </Button>
+                  <div className="flex justify-end lg:justify-start">
+                    <Button onClick={() => setCreateEventOpen(true)} className="whitespace-nowrap">
+                      <Plus className="h-4 w-4 mr-2" />
+                      <span className="hidden sm:inline">Create Event</span>
+                      <span className="sm:hidden">Create</span>
+                    </Button>
+                  </div>
                   <Dialog open={createEventOpen} onOpenChange={setCreateEventOpen}>
                   <DialogContent className="sm:max-w-[600px]">
                     <DialogHeader>
@@ -850,7 +853,7 @@ export default function EventsClient() {
                     )}
                   </div>
                   {user?.role === "admin" || user?.role === "sk_official" ? (
-                    <div className="flex gap-2 mt-4">
+                    <div className="flex flex-col sm:flex-row gap-2 mt-4">
                       <Button
                         variant="outline"
                         className="flex-1"
@@ -860,7 +863,8 @@ export default function EventsClient() {
                         }}
                       >
                         <Eye className="h-4 w-4 mr-2" />
-                        View Details
+                        <span className="hidden sm:inline">View Details</span>
+                        <span className="sm:hidden">View</span>
                       </Button>
                       <Button
                         className="flex-1"
@@ -890,7 +894,8 @@ export default function EventsClient() {
                         }}
                       >
                         <Settings className="h-4 w-4 mr-2" />
-                        Edit Event
+                        <span className="hidden sm:inline">Edit Event</span>
+                        <span className="sm:hidden">Edit</span>
                       </Button>
                     </div>
                   ) : (
