@@ -119,10 +119,45 @@ userSchema.virtual("fullName").get(function () {
   return `${this.firstName} ${this.lastName}`
 })
 
-// Remove password from JSON output
+// Generate password reset token
+userSchema.methods.generatePasswordResetToken = function () {
+  // Generate random token
+  const resetToken = crypto.randomBytes(32).toString('hex')
+
+  // Hash and set reset token
+  this.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex')
+
+  // Set expiry time (10 minutes)
+  this.resetPasswordExpires = Date.now() + 10 * 60 * 1000
+
+  return resetToken
+}
+
+// Check if reset token is valid
+userSchema.methods.isResetTokenValid = function (token) {
+  if (!this.resetPasswordToken || !this.resetPasswordExpires) {
+    return false
+  }
+
+  // Hash the provided token and compare
+  const hashedToken = crypto.createHash('sha256').update(token).digest('hex')
+
+  // Check if token matches and hasn't expired
+  return this.resetPasswordToken === hashedToken && this.resetPasswordExpires > Date.now()
+}
+
+// Clear reset token
+userSchema.methods.clearResetToken = function () {
+  this.resetPasswordToken = null
+  this.resetPasswordExpires = null
+}
+
+// Remove password and reset token from JSON output
 userSchema.methods.toJSON = function () {
   const user = this.toObject()
   delete user.password
+  delete user.resetPasswordToken
+  delete user.resetPasswordExpires
   return user
 }
 
