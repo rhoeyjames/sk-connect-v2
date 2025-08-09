@@ -384,9 +384,10 @@ export default function EventsClient() {
               </div>
               {(user.role === "admin" || user.role === "sk_official") && (
                 <>
-                  <Button onClick={() => setCreateEventOpen(true)}>
+                  <Button onClick={() => setCreateEventOpen(true)} className="whitespace-nowrap">
                     <Plus className="h-4 w-4 mr-2" />
-                    Create Event
+                    <span className="hidden sm:inline">Create Event</span>
+                    <span className="sm:hidden">Create</span>
                   </Button>
                   <Dialog open={createEventOpen} onOpenChange={setCreateEventOpen}>
                   <DialogContent className="sm:max-w-[600px]">
@@ -850,7 +851,7 @@ export default function EventsClient() {
                     )}
                   </div>
                   {user?.role === "admin" || user?.role === "sk_official" ? (
-                    <div className="flex gap-2 mt-4">
+                    <div className="flex flex-col sm:flex-row gap-2 mt-4">
                       <Button
                         variant="outline"
                         className="flex-1"
@@ -860,7 +861,8 @@ export default function EventsClient() {
                         }}
                       >
                         <Eye className="h-4 w-4 mr-2" />
-                        View Details
+                        <span className="hidden sm:inline">View Details</span>
+                        <span className="sm:hidden">View</span>
                       </Button>
                       <Button
                         className="flex-1"
@@ -890,7 +892,8 @@ export default function EventsClient() {
                         }}
                       >
                         <Settings className="h-4 w-4 mr-2" />
-                        Edit Event
+                        <span className="hidden sm:inline">Edit Event</span>
+                        <span className="sm:hidden">Edit</span>
                       </Button>
                     </div>
                   ) : (
