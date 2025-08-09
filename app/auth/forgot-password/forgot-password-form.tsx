@@ -19,19 +19,44 @@ export default function ForgotPasswordForm() {
     setIsLoading(true)
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
-      toast({
-        title: "Reset Link Sent!",
-        description: "Check your email for password reset instructions.",
+      const response = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
       })
 
-      setEmail("")
+      const data = await response.json()
+
+      if (response.ok) {
+        toast({
+          title: "Reset Link Sent!",
+          description: data.message || "Check your email for password reset instructions.",
+        })
+
+        // Show preview URL in development
+        if (data.previewUrl) {
+          console.log("📧 Email preview:", data.previewUrl)
+          toast({
+            title: "Development Mode",
+            description: "Check console for email preview link.",
+          })
+        }
+
+        setEmail("")
+      } else {
+        toast({
+          title: "Error",
+          description: data.message || "Failed to send reset email. Please try again.",
+          variant: "destructive",
+        })
+      }
     } catch (error) {
+      console.error("Forgot password error:", error)
       toast({
         title: "Error",
-        description: "Something went wrong. Please try again.",
+        description: "Network error. Please check your connection and try again.",
         variant: "destructive",
       })
     } finally {
