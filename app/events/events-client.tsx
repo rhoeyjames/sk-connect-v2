@@ -354,7 +354,7 @@ export default function EventsClient() {
         {/* Welcome Section */}
         <div className="mb-8">
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <div className="flex items-center space-x-4">
                 <Avatar className="h-16 w-16">
                   <AvatarImage src="/placeholder-user.jpg" alt={user.firstName} />
@@ -384,11 +384,13 @@ export default function EventsClient() {
               </div>
               {(user.role === "admin" || user.role === "sk_official") && (
                 <>
-                  <Button onClick={() => setCreateEventOpen(true)} className="whitespace-nowrap">
-                    <Plus className="h-4 w-4 mr-2" />
-                    <span className="hidden sm:inline">Create Event</span>
-                    <span className="sm:hidden">Create</span>
-                  </Button>
+                  <div className="flex justify-end lg:justify-start">
+                    <Button onClick={() => setCreateEventOpen(true)} className="whitespace-nowrap">
+                      <Plus className="h-4 w-4 mr-2" />
+                      <span className="hidden sm:inline">Create Event</span>
+                      <span className="sm:hidden">Create</span>
+                    </Button>
+                  </div>
                   <Dialog open={createEventOpen} onOpenChange={setCreateEventOpen}>
                   <DialogContent className="sm:max-w-[600px]">
                     <DialogHeader>
