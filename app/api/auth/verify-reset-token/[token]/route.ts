@@ -8,7 +8,9 @@ export async function GET(
     const { token } = params
 
     // Forward request to backend
-    const backendUrl = process.env.BACKEND_URL || "https://sk-connect-backend-production.up.railway.app"
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ||
+                      process.env.BACKEND_URL ||
+                      "https://sk-connect-backend-production-543c.up.railway.app"
     
     const response = await fetch(`${backendUrl}/api/auth/verify-reset-token/${token}`, {
       method: "GET",
